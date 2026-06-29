@@ -1,52 +1,15 @@
+import { useMemo, useState } from "react";
 import "./style.css";
 
-const tableData = [
-  {
-    invoice: "INV-1001",
-    tenant: "Acme Telecom",
-    minutes: 325,
-    amount: "$425",
-    status: "Paid",
-  },
-  {
-    invoice: "INV-1002",
-    tenant: "VoiceHub AI",
-    minutes: 542,
-    amount: "$790",
-    status: "Pending",
-  },
-  {
-    invoice: "INV-1003",
-    tenant: "Nova Systems",
-    minutes: 187,
-    amount: "$240",
-    status: "Completed",
-  },
-  {
-    invoice: "INV-1004",
-    tenant: "Cloud Connect",
-    minutes: 611,
-    amount: "$980",
-    status: "Failed",
-  },
-  {
-    invoice: "INV-1005",
-    tenant: "Smart Dial",
-    minutes: 456,
-    amount: "$610",
-    status: "Paid",
-  },
-];
-
-function badge(status) {
-  switch (status) {
-    case "Paid":
+function getBadge(status) {
+  switch (status?.toLowerCase()) {
+    case "paid":
       return "badge green";
 
-    case "Pending":
+    case "pending":
       return "badge orange";
 
-    case "Completed":
+    case "completed":
       return "badge blue";
 
     default:
@@ -54,17 +17,50 @@ function badge(status) {
   }
 }
 
-function DataGrid() {
+function DataGrid({
+  title = "Accounts & Ledger Audit Entries",
+  columns = [],
+  data = [],
+  rowsPerPage = 5,
+}) {
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const filteredData = useMemo(() => {
+    if (!search) return data;
+
+    return data.filter((row) =>
+      Object.values(row).some((value) =>
+        String(value).toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  }, [data, search]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredData.length / rowsPerPage)
+  );
+
+  const paginatedData = filteredData.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+
   return (
     <div className="table-card">
 
       <div className="table-header">
 
-        <h2>Accounts & Ledger Audit Entries</h2>
+        <h2>{title}</h2>
 
         <input
           type="text"
           placeholder="Search..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
         />
 
       </div>
@@ -75,15 +71,11 @@ function DataGrid() {
 
           <tr>
 
-            <th>Invoice</th>
-
-            <th>Tenant</th>
-
-            <th>Minutes</th>
-
-            <th>Amount</th>
-
-            <th>Status</th>
+            {columns.map((column) => (
+              <th key={column.key}>
+                {column.label}
+              </th>
+            ))}
 
           </tr>
 
@@ -91,33 +83,64 @@ function DataGrid() {
 
         <tbody>
 
-          {tableData.map((item) => (
-
-            <tr key={item.invoice}>
-
-              <td>{item.invoice}</td>
-
-              <td>{item.tenant}</td>
-
-              <td>{item.minutes}</td>
-
-              <td>{item.amount}</td>
-
-              <td>
-
-                <span className={badge(item.status)}>
-                  {item.status}
-                </span>
-
+          {paginatedData.length === 0 && (
+            <tr>
+              <td
+                colSpan={columns.length}
+                className="empty-table"
+              >
+                No Records Found
               </td>
+            </tr>
+          )}
+
+          {paginatedData.map((row, index) => (
+            <tr key={index}>
+
+              {columns.map((column) => (
+
+                <td key={column.key}>
+
+                  {column.key === "status" ? (
+                    <span className={getBadge(row[column.key])}>
+                      {row[column.key]}
+                    </span>
+                  ) : (
+                    row[column.key]
+                  )}
+
+                </td>
+
+              ))}
 
             </tr>
-
           ))}
 
         </tbody>
 
       </table>
+
+      <div className="pagination">
+
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+        >
+          Previous
+        </button>
+
+        <span>
+          Page {page} of {totalPages}
+        </span>
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </button>
+
+      </div>
 
     </div>
   );

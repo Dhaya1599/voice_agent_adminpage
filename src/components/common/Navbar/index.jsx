@@ -1,91 +1,86 @@
 import "./style.css";
 
 import {
-
-FiBell,
-
-FiSearch,
-
-FiSettings,
-
-FiUser
-
+  FiBell,
+  FiSearch,
+  FiSettings,
+  FiUser,
+  FiRefreshCw,
 } from "react-icons/fi";
 
-function Navbar(){
+function Navbar() {
+  return (
+    <header className="navbar">
 
-return(
+      <div className="navbar-left">
 
-<header className="navbar">
+        <div className="navbar-title">
 
-<div className="navbar-left">
+          <h2>Voice Agent Dashboard</h2>
 
-<h2>
+          <span>
+            Real-Time Analytics Platform
+          </span>
 
-Voice Agent Dashboard
+        </div>
 
-</h2>
+      </div>
 
-</div>
+      <div className="navbar-center">
 
-<div className="navbar-right">
+        <div className="search-box">
 
-<div className="search-box">
+          <FiSearch className="search-icon" />
 
-<FiSearch/>
+          <input
+            type="text"
+            placeholder="Search dashboards, invoices, inventory..."
+          />
 
-<input
+        </div>
 
-placeholder="Search..."
+      </div>
 
-/>
+      <div className="navbar-right">
 
-</div>
+        <button className="circle-btn">
+          <FiRefreshCw />
+        </button>
 
-<div className="nav-icon">
+        <button className="circle-btn notification">
 
-<FiBell/>
+          <FiBell />
 
-</div>
+          <span className="notification-dot"></span>
 
-<div className="nav-icon">
+        </button>
 
-<FiSettings/>
+        <button className="circle-btn">
+          <FiSettings />
+        </button>
 
-</div>
+        <div className="profile">
 
-<div className="profile">
+          <div className="avatar">
 
-<div className="avatar">
+            <FiUser />
 
-<FiUser/>
+          </div>
 
-</div>
+          <div className="profile-info">
 
-<div>
+            <h4>Roshini</h4>
 
-<h4>
+            <span>Administrator</span>
 
-Roshini
+          </div>
 
-</h4>
+        </div>
 
-<p>
+      </div>
 
-Administrator
-
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</header>
-
-);
-
+    </header>
+  );
 }
 
 export default Navbar;

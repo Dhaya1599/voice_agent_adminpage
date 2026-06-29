@@ -1,0 +1,35 @@
+.revenue-chart-card{
+
+background:#fff;
+
+border-radius:22px;
+
+padding:25px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+}
+
+.chart-title{
+
+margin-bottom:20px;
+
+}
+
+.chart-title h3{
+
+margin:0;
+
+font-size:24px;
+
+color:#2c2c54;
+
+}
+
+.chart-title p{
+
+margin-top:6px;
+
+color:#8d94b2;
+
+}

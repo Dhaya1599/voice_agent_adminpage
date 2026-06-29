@@ -1,57 +1,108 @@
 import "./style.css";
+
 import {
   FiPhone,
   FiServer,
   FiDollarSign,
-  FiDatabase
+  FiDatabase,
+  FiChevronRight,
 } from "react-icons/fi";
 
-// Cleaned up array containing exactly your 4 functional pages
 const menus = [
   {
     id: "livecalls",
     title: "Live Calls",
-    icon: <FiPhone />
+    icon: <FiPhone />,
   },
   {
     id: "api",
     title: "API Monitor",
-    icon: <FiServer />
+    icon: <FiServer />,
   },
   {
     id: "revenue",
     title: "Revenue",
-    icon: <FiDollarSign />
+    icon: <FiDollarSign />,
   },
   {
     id: "inventory",
     title: "Inventory",
-    icon: <FiDatabase />
-  }
+    icon: <FiDatabase />,
+  },
 ];
 
 function Sidebar({ activePage, setActivePage }) {
   return (
     <aside className="sidebar">
+
       <div className="logo">
-        <div className="logo-circle">VA</div>
-        <div>
-          <h2>Voice Admin</h2>
-          <p>Management Portal</p>
+
+        <div className="logo-circle">
+          VA
         </div>
+
+        <div className="logo-text">
+
+          <h2>Voice Admin</h2>
+
+          <p>Management Portal</p>
+
+        </div>
+
       </div>
-      <nav>
+
+      <div className="sidebar-label">
+        NAVIGATION
+      </div>
+
+      <nav className="sidebar-menu">
+
         {menus.map((menu) => (
-          <div
+
+          <button
             key={menu.id}
-            className={activePage === menu.id ? "menu active" : "menu"}
+            className={
+              activePage === menu.id
+                ? "menu active"
+                : "menu"
+            }
             onClick={() => setActivePage(menu.id)}
           >
-            <div className="menu-icon">{menu.icon}</div>
-            <span>{menu.title}</span>
-          </div>
+
+            <div className="menu-left">
+
+              <div className="menu-icon">
+                {menu.icon}
+              </div>
+
+              <span>
+                {menu.title}
+              </span>
+
+            </div>
+
+            <FiChevronRight className="menu-arrow" />
+
+          </button>
+
         ))}
+
       </nav>
+
+      <div className="sidebar-footer">
+
+        <div className="system-status"></div>
+
+        <div>
+
+          <strong>System Status</strong>
+
+          <p>Backend Connected</p>
+
+        </div>
+
+      </div>
+
     </aside>
   );
 }

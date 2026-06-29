@@ -1,76 +1,198 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import KPICard from "../../common/KPICard";
+import useRevenue from "../../../hooks/useRevenue";
+import "./style.css";
+import RevenueChart from "../../common/RevenueChart";
 
 function Revenue() {
-  const [financials, setFinancials] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    revenue,
+    profit,
+    conversionRate,
+    averageOrderValue,
+    loading,
+    error,
+    refresh,
+  } = useRevenue();
 
-  useEffect(() => {
-    fetch("/api/v1/analytics/financials")
-      .then(res => res.json())
-      .then(data => {
-        setFinancials(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setFinancials({
-          grossProfit: "$32,450",
-          totalRevenue: "$124,800",
-          conversionRate: "24.5%",
-          avgOrderValue: "$88.20",
-          categories: [
-            { segment: "Voice Conversion Sales", amount: "$74,200", growth: "+14%" },
-            { segment: "Automated Rescheduling Upsells", amount: "$32,100", growth: "+8%" },
-            { segment: "API Verification Webhooks", amount: "$18,500", growth: "+21%" }
-          ]
-        });
-        setLoading(false);
-      });
-  }, []);
+  if (loading) {
+    return (
+      <div className="revenue-loading">
+        Compiling Financial Metrics...
+      </div>
+    );
+  }
 
-  if (loading) return <div style={{ padding: "20px", color: "#888" }}>Compiling Financial Metrics...</div>;
+  if (error) {
+    return (
+      <div className="revenue-error">
+        <h2>Unable to Load Revenue Data</h2>
+        <p>{error.message || "Something went wrong."}</p>
+
+        <button onClick={refresh}>
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-      <div>
-        <h1 style={{ fontSize: "34px", color: "#2D2D52", margin: 0 }}>Commerce & Revenue Ledger</h1>
-        <p style={{ color: "#888", marginTop: "6px" }}>Financial breakdowns matching checkout payment logs.</p>
+    <div className="revenue-container">
+
+      <div className="revenue-page-header">
+
+        <div>
+          <h1>Commerce & Revenue Ledger</h1>
+
+          <p>
+            Financial breakdown generated directly from your backend database.
+          </p>
+        </div>
+
+        <button
+          className="refresh-btn"
+          onClick={refresh}
+        >
+          Refresh
+        </button>
+
       </div>
 
-      {/* Financial Matrix Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
-        <div style={{ background: "white", padding: "22px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-          <p style={{ color: "#888", fontSize: "14px", margin: 0 }}>Total Revenue</p>
-          <h2 style={{ fontSize: "30px", margin: "10px 0 0 0", color: "#7367F0" }}>{financials?.totalRevenue}</h2>
-        </div>
-        <div style={{ background: "white", padding: "22px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-          <p style={{ color: "#888", fontSize: "14px", margin: 0 }}>Gross Profit Margin</p>
-          <h2 style={{ fontSize: "30px", margin: "10px 0 0 0", color: "#28C76F" }}>{financials?.grossProfit}</h2>
-        </div>
-        <div style={{ background: "white", padding: "22px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-          <p style={{ color: "#888", fontSize: "14px", margin: 0 }}>Conversion Rate</p>
-          <h2 style={{ fontSize: "30px", margin: "10px 0 0 0", color: "#00CFE8" }}>{financials?.conversionRate}</h2>
-        </div>
-        <div style={{ background: "white", padding: "22px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-          <p style={{ color: "#888", fontSize: "14px", margin: 0 }}>Avg Order Value</p>
-          <h2 style={{ fontSize: "30px", margin: "10px 0 0 0", color: "#FF9F43" }}>{financials?.avgOrderValue}</h2>
-        </div>
+      <div className="revenue-summary-grid">
+
+        <KPICard
+          title="Total Revenue"
+          value={`₹${Number(revenue).toLocaleString()}`}
+          subtitle="Total Revenue Generated"
+          trend="+12.8%"
+          trendType="positive"
+          icon="💰"
+          gradient="linear-gradient(135deg,#7367F0,#9C8CFF)"
+        />
+
+        <KPICard
+          title="Gross Profit"
+          value={`₹${Number(profit).toLocaleString()}`}
+          subtitle="Estimated Gross Profit"
+          trend="+8.6%"
+          trendType="positive"
+          icon="📈"
+          gradient="linear-gradient(135deg,#00C853,#43E97B)"
+        />
+
+        <KPICard
+          title="Conversion Rate"
+          value={`${conversionRate}%`}
+          subtitle="Customer Conversion"
+          trend="+3.1%"
+          trendType="positive"
+          icon="🎯"
+          gradient="linear-gradient(135deg,#00B4DB,#0083B0)"
+        />
+
+        <KPICard
+          title="Average Order"
+          value={`₹${Number(averageOrderValue).toLocaleString()}`}
+          subtitle="Average Order Value"
+          trend="+5.4%"
+          trendType="positive"
+          icon="🛒"
+          gradient="linear-gradient(135deg,#F7971E,#FFD200)"
+        />
+
       </div>
 
-      {/* Category Breakdown Card */}
-      <div style={{ background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 8px 25px rgba(0,0,0,.04)" }}>
-        <h3 style={{ marginBottom: "20px", color: "#2D2D52" }}>Category-wise Performance Breakdown</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-          {financials?.categories.map((cat, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f1f1f6" }}>
-              <span style={{ fontWeight: "500", color: "#555" }}>{cat.segment}</span>
-              <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
-                <span style={{ fontWeight: "600", color: "#2D2D52" }}>{cat.amount}</span>
-                <span style={{ color: "#28C76F", fontSize: "13px", fontWeight: "600" }}>{cat.growth}</span>
-              </div>
-            </div>
-          ))}
+      <div className="revenue-card">
+
+        <div className="revenue-header">
+
+          <div>
+
+            <h2>
+              Revenue Summary
+            </h2>
+
+            <p>
+              Live data fetched from your FastAPI backend.
+            </p>
+
+          </div>
+
+          <button
+            className="refresh-btn"
+            onClick={refresh}
+          >
+            Refresh Data
+          </button>
+
         </div>
+
+        <div className="summary-row">
+        <RevenueChart
+    revenue={revenue}
+    profit={profit}
+/>
+
+          <div className="summary-box">
+
+            <span>Total Revenue</span>
+
+            <h3>
+              ₹{Number(revenue).toLocaleString()}
+            </h3>
+
+            <p className="positive">
+              Live Database Value
+            </p>
+
+          </div>
+
+          <div className="summary-box">
+
+            <span>Gross Profit</span>
+
+            <h3>
+              ₹{Number(profit).toLocaleString()}
+            </h3>
+
+            <p className="positive">
+              Live Database Value
+            </p>
+
+          </div>
+
+          <div className="summary-box">
+
+            <span>Conversion Rate</span>
+
+            <h3>
+              {conversionRate}%
+            </h3>
+
+            <p className="positive">
+              Live Database Value
+            </p>
+
+          </div>
+
+          <div className="summary-box">
+
+            <span>Average Order</span>
+
+            <h3>
+              ₹{Number(averageOrderValue).toLocaleString()}
+            </h3>
+
+            <p className="positive">
+              Live Database Value
+            </p>
+
+          </div>
+
+        </div>
+
       </div>
+
     </div>
   );
 }

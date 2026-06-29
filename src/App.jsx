@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+
 import "./App.css";
 
 import Navbar from "./components/common/Navbar";
@@ -11,13 +13,10 @@ import Revenue from "./components/sections/Revenue";
 import Inventory from "./components/sections/Inventory";
 
 function App() {
-
   const [activePage, setActivePage] = useState("dashboard");
 
   const renderPage = () => {
-
     switch (activePage) {
-
       case "livecalls":
         return <LiveCalls />;
 
@@ -33,11 +32,9 @@ function App() {
       default:
         return <Dashboard />;
     }
-
   };
 
   return (
-
     <div className="dashboard-root">
 
       <Navbar />
@@ -51,16 +48,37 @@ function App() {
 
         <main className="dashboard-content">
 
-          {renderPage()}
+          <AnimatePresence mode="wait">
+
+            <motion.div
+              key={activePage}
+              initial={{
+                opacity: 0,
+                y: 20,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                y: -20,
+              }}
+              transition={{
+                duration: 0.35,
+              }}
+            >
+              {renderPage()}
+            </motion.div>
+
+          </AnimatePresence>
 
         </main>
 
       </div>
 
     </div>
-
   );
-
 }
 
 export default App;

@@ -3,23 +3,39 @@ import "./style.css";
 function KPICard({
   title,
   value,
-  trend,
-  color = "#7367F0", // Uses a valid fallback hex color code
-  icon = "📊"
+  subtitle = "",
+  trend = "",
+  trendType = "positive",
+  icon = "📊",
+  gradient = "linear-gradient(135deg,#7367F0,#9C8CFF)",
+  onClick,
 }) {
   return (
-    /* Apply color safely via the style attribute */
-    <div className="kpi-card" style={{ background: color }}>
+    <div
+      className="kpi-card"
+      style={{ background: gradient }}
+      onClick={onClick}
+    >
+      <div className="kpi-card-overlay"></div>
 
       <div className="kpi-header">
 
-        <div>
-          <p className="kpi-title">
+        <div className="kpi-text">
+
+          <span className="kpi-title">
             {title}
-          </p>
+          </span>
+
           <h2 className="kpi-value">
             {value}
           </h2>
+
+          {subtitle && (
+            <p className="kpi-subtitle">
+              {subtitle}
+            </p>
+          )}
+
         </div>
 
         <div className="kpi-icon">
@@ -28,11 +44,21 @@ function KPICard({
 
       </div>
 
-      <div className="kpi-footer">
-        <span className="trend">
-          ▲ {trend}
-        </span>
-      </div>
+      {trend && (
+        <div className="kpi-footer">
+
+          <span
+            className={`trend ${
+              trendType === "positive"
+                ? "positive"
+                : "negative"
+            }`}
+          >
+            {trendType === "positive" ? "▲" : "▼"} {trend}
+          </span>
+
+        </div>
+      )}
 
     </div>
   );

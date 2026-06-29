@@ -1,51 +1,34 @@
-*{
-
-margin:0;
-
-padding:0;
-
-box-sizing:border-box;
-
-font-family:'Segoe UI',sans-serif;
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-body{
-
-background:#f5f7fb;
-
-overflow:hidden;
-
+body {
+  background: #f5f7fb;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
-.app{
-
-height:100vh;
-
-display:flex;
-
-flex-direction:column;
-
+/* Matches <div className="dashboard-root"> */
+.dashboard-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.app-body{
-
-display:flex;
-
-flex:1;
-
-overflow:hidden;
-
+/* Matches <div className="dashboard-body"> */
+.dashboard-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* Keeps side-scrolling or weird page-bursting locked down */
 }
 
-.content{
-
-flex:1;
-
-padding:25px;
-
-overflow-y:auto;
-
-background:#f5f7fb;
-
+/* Matches <main className="dashboard-content"> */
+.dashboard-content {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto; /* Gives you a clean scrolling area on the right side if content is long */
+  background: #f5f7fb;
+  min-width: 0;     /* Ensures grid layouts inside don't break flex container sizing bounds */
 }

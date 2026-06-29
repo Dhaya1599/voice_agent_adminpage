@@ -1,0 +1,4 @@
+.vendor-panels-split { display: flex; gap: 16px; }
+.vendor-card { flex: 1; background-color: var(--bg); border: 1px solid var(--bd); border-radius: 8px; padding: 14px; }
+.vendor-card h3 { margin: 0 0 6px 0; font-size: 13px; color: var(--tx); }
+.vendor-card p { margin: 0; font-size: 13px; color: var(--t2); }

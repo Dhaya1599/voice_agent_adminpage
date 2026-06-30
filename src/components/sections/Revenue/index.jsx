@@ -15,14 +15,7 @@ function Revenue() {
     refresh,
   } = useRevenue();
 
-  if (loading) {
-    return (
-      <div className="revenue-loading">
-        Compiling Financial Metrics...
-      </div>
-    );
-  }
-
+  
   if (error) {
     return (
       <div className="revenue-error">
@@ -49,12 +42,7 @@ function Revenue() {
           </p>
         </div>
 
-        <button
-          className="refresh-btn"
-          onClick={refresh}
-        >
-          Refresh
-        </button>
+        
 
       </div>
 
@@ -118,12 +106,7 @@ function Revenue() {
 
           </div>
 
-          <button
-            className="refresh-btn"
-            onClick={refresh}
-          >
-            Refresh Data
-          </button>
+          
 
         </div>
 

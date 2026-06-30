@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import KPICard from "../../common/KPICard";
+import Pagination from "../../common/Pagination";
 import useInventory from "../../../hooks/useInventory";
 import "./style.css"; // Pulls the matched style guidelines sheet
+
+const ITEMS_PER_PAGE = 10;
 
 function Inventory() {
   const {
@@ -15,6 +18,7 @@ function Inventory() {
 
   // Local state hook for interactive search filters
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   if (loading) {
     return (
@@ -45,6 +49,18 @@ function Inventory() {
     );
   });
 
+  const totalPages = Math.max(1, Math.ceil(filteredAlerts.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedAlerts = filteredAlerts.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
+  );
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page on every new search
+  };
+
   return (
     <div className="revenue-container">
       
@@ -54,9 +70,7 @@ function Inventory() {
           <h1>Inventory & Stock Alerts</h1>
           <p>Real-time asset tracking and fulfillment alerts fetched directly from PostgreSQL.</p>
         </div>
-        <button className="refresh-btn" onClick={refresh}>
-          Refresh Ledger
-        </button>
+        
       </div>
 
       {/* Conditional Warning Banner styled to fit your premium layouts */}
@@ -113,7 +127,7 @@ function Inventory() {
               type="text"
               placeholder="Search by product, ID, category..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch}
               className="inventory-search-input"
             />
           </div>
@@ -132,7 +146,7 @@ function Inventory() {
               </tr>
             </thead>
             <tbody>
-              {filteredAlerts.length === 0 ? (
+              {paginatedAlerts.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="empty-table-state">
                     No active product lines match your filtering parameters.
@@ -140,7 +154,7 @@ function Inventory() {
                 </tr>
               ) : (
                 // Added index parameter to safely map a completely unique composite key prop string
-                filteredAlerts.map((item, index) => (
+                paginatedAlerts.map((item, index) => (
                   <tr key={`${item.product_id || 'item'}-${index}`} className="table-row-hover">
                     <td className="font-mono">{item.product_id}</td>
                     <td className="font-caller-bold">{item.product_name}</td>
@@ -159,6 +173,13 @@ function Inventory() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Integration - paginates the filtered/searched result set */}
+        <Pagination
+          currentPage={safePage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </div>
 
     </div>

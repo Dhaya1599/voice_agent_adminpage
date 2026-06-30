@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import KPICard from "../../common/KPICard";
 import "./style.css";
 import Pagination from "../../common/Pagination";
+import { ApiMonitorService } from "../../../services/endpoints/apimonitorService";
 
 function ApiMonitor() {
   const [health, setHealth] = useState(null);
@@ -17,27 +18,20 @@ function ApiMonitor() {
 
   const fetchMonitorData = async (page, cursor, query) => {
     setLoading(true);
-    const params = new URLSearchParams({ limit: 10 });
-    if (cursor) params.append("cursor", cursor);
-    if (query) params.append("search", query);
     
-    const logsUrl = `http://127.0.0.1:8000/api/v1/admin/logs?${params.toString()}`;
-
     try {
       const [healthRes, logRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/api/v1/monitor/health-metrics"),
-        fetch(logsUrl)
+      ApiMonitorService.getHealthMetrics(),
+      ApiMonitorService.getLogs(cursor, 10, query),
       ]);
       
-      const healthData = await healthRes.json();
-      const logData = await logRes.json();
 
-      setHealth(healthData);
-      setLogs(logData.logs || []);
-      setHasMore(logData.pagination?.has_more ?? false);
-      
+      setHealth(healthRes.data);
+      setLogs(logRes.data.logs || []);
+      setHasMore(logRes.data.pagination?.has_more ?? false);
+
       if (page >= cursors.length) {
-        setCursors(prev => [...prev, logData.pagination?.next_cursor]);
+        setCursors(prev => [...prev, logRes.data.pagination?.next_cursor]);
       }
     } catch (err) {
       console.error("Fetch failed:", err);

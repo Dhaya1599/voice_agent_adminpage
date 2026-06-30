@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import KPICard from "../../common/KPICard";
 import Pagination from "../../common/Pagination"; // Ensure this is imported
 import "./style.css";
+import { LiveCallsService } from "../../../services/endpoints/livecallsService";
+
 
 function LiveCalls() {
   const [metrics, setMetrics] = useState({
@@ -21,17 +23,12 @@ function LiveCalls() {
   // Updated fetch to support cursor and search query
   const fetchDatabaseLogs = async (page, cursor, query) => {
     setLoading(true);
-    const params = new URLSearchParams({ limit: 10 });
-    if (cursor) params.append("cursor", cursor);
-    if (query) params.append("search", query);
-
+    
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/admin/logs?${params.toString()}`);
-      if (!res.ok) throw new Error("Could not sync with operational log database.");
-      
-      const data = await res.json();
+      const { data } = await LiveCallsService.getLogs(cursor, 10, query);
       setLogs(data.logs || []);
       setHasMore(data.pagination?.has_more ?? false);
+
 
       // Store the next_cursor if we are moving to a new page
       if (page >= cursors.length) {
@@ -48,7 +45,7 @@ function LiveCalls() {
   useEffect(() => {
     fetchDatabaseLogs(1, null, "");
 
-    const eventSource = new EventSource("http://127.0.0.1:8000/api/v1/dashboard/live-stream");
+    const eventSource = new EventSource(LiveCallsService.getLiveStreamUrl());
     eventSource.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);

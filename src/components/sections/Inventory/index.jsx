@@ -1,24 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import KPICard from "../../common/KPICard";
 import Pagination from "../../common/Pagination";
-import useInventory from "../../../hooks/useInventory";
-import "./style.css"; // Pulls the matched style guidelines sheet
+import "./style.css";
+import { InventoryService } from "../../../services/endpoints/inventoryService";
 
 const ITEMS_PER_PAGE = 10;
 
 function Inventory() {
-  const {
-    flashBanner,
-    inventoryAlerts,
-    totalAlerts,
-    loading,
-    error,
-    refresh,
-  } = useInventory();
+  const [inventoryAlerts, setInventoryAlerts] = useState([]);
+  const [flashBanner, setFlashBanner] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Local state hook for interactive search filters
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const fetchInventory = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      
+      const {data} = await InventoryService.getInventoryAlerts();
+      setInventoryAlerts(data.inventory_alerts || []);
+      setFlashBanner(data.flash_banner_active ?? false);
+    } catch (err) {
+      console.error("Inventory fetch failed:", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
 
   if (loading) {
     return (
@@ -33,7 +48,7 @@ function Inventory() {
       <div className="revenue-error">
         <h2>Unable to Sync Inventory Database</h2>
         <p>{error.message || "Connection line to PostgreSQL timed out."}</p>
-        <button onClick={refresh}>Retry Sync</button>
+        <button onClick={fetchInventory}>Retry Sync</button>
       </div>
     );
   }
@@ -63,28 +78,24 @@ function Inventory() {
 
   return (
     <div className="revenue-container">
-      
-      {/* Page Header Structure aligned with Revenue */}
+
       <div className="revenue-page-header">
         <div>
           <h1>Inventory & Stock Alerts</h1>
           <p>Real-time asset tracking and fulfillment alerts fetched directly from PostgreSQL.</p>
         </div>
-        
       </div>
 
-      {/* Conditional Warning Banner styled to fit your premium layouts */}
       {flashBanner && (
         <div className="inventory-flash-banner">
           <span className="banner-icon">⚠️</span> Critical Level Notice: Immediate inventory refills are required for flagged product lines.
         </div>
       )}
 
-      {/* 3-Column Summary Card Row using KPICards */}
       <div className="inventory-summary-grid">
         <KPICard
           title="Total Stock Alerts"
-          value={totalAlerts}
+          value={inventoryAlerts.length}
           subtitle="Flagged Catalog Products"
           trend="System Wide"
           trendType="negative"
@@ -113,15 +124,13 @@ function Inventory() {
         />
       </div>
 
-      {/* Catalog Table Block */}
       <div className="inventory-card">
         <div className="inventory-header">
           <div>
             <h2>Product Catalog Alerts</h2>
             <p>Monitored lines registering matching system trigger conditions.</p>
           </div>
-          
-          {/* Integrated Dynamic Search box mapping criteria overlay input */}
+
           <div>
             <input
               type="text"
@@ -133,7 +142,6 @@ function Inventory() {
           </div>
         </div>
 
-        {/* Responsive Table Grid */}
         <div className="table-responsive-wrapper">
           <table className="revenue-styled-table">
             <thead>
@@ -153,7 +161,6 @@ function Inventory() {
                   </td>
                 </tr>
               ) : (
-                // Added index parameter to safely map a completely unique composite key prop string
                 paginatedAlerts.map((item, index) => (
                   <tr key={`${item.product_id || 'item'}-${index}`} className="table-row-hover">
                     <td className="font-mono">{item.product_id}</td>
@@ -174,7 +181,6 @@ function Inventory() {
           </table>
         </div>
 
-        {/* Pagination Integration - paginates the filtered/searched result set */}
         <Pagination
           currentPage={safePage}
           totalPages={totalPages}

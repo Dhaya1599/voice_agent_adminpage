@@ -1,100 +1,106 @@
 import React, { useState, useEffect } from "react";
+import KPICard from "../../common/KPICard";
+import "./style.css"; 
 
 function ApiMonitor() {
   const [health, setHealth] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchMonitorData = () => {
+    Promise.all([
+      fetch("http://127.0.0.1:8000/api/v1/monitor/health-metrics").then((res) => {
+        if (!res.ok) throw new Error("Health telemetry offline");
+        return res.json();
+      }),
+      fetch("http://127.0.0.1:8000/api/v1/admin/logs?limit=15").then((res) => {
+        if (!res.ok) throw new Error("Logs database line broken");
+        return res.json();
+      })
+    ])
+      .then(([healthData, logData]) => {
+        setHealth(healthData);
+        setLogs(logData.logs || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Gateway diagnostics fetch failed:", err);
+        setError(err);
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/v1/monitor/health-metrics").then(res => res.json()),
-      fetch("/api/v1/admin/logs").then(res => res.json())
-    ])
-    .then(([healthData, logData]) => {
-      setHealth(healthData);
-      setLogs(logData);
-      setLoading(false);
-    })
-    .catch(() => {
-      // Mock Data incorporating vendor configurations and modified log_id standard
-      setHealth({
-        twilio: "Operational",
-        deepgram: "Operational",
-        otpSuccessRate: "98.4%",
-        llmLatency: "142ms",
-        gatewayStatus: "Healthy"
-      });
-      setLogs([
-        { log_id: "LOG-4011", number: "+1 (555) 912-3004", primary_intent: "OTP Verification", status: "Success", latency: "110ms" },
-        { log_id: "LOG-4012", number: "+1 (555) 231-5091", primary_intent: "Product Availability Check", status: "Handled", latency: "185ms" },
-        { log_id: "LOG-4013", number: "+1 (555) 441-9923", primary_intent: "Support Routing", status: "Failed", latency: "210ms" }
-      ]);
-      setLoading(false);
-    });
+    fetchMonitorData();
   }, []);
 
-  if (loading) return <div style={{ padding: "20px", color: "#888" }}>Fetching Gateway Diagnostics...</div>;
+  if (loading) return <div className="revenue-loading">Fetching System Diagnostics...</div>;
+  if (error) return <div className="revenue-error"><button onClick={fetchMonitorData}>Retry</button></div>;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-      <div>
-        <h1 style={{ fontSize: "34px", color: "#2D2D52", margin: 0 }}>API Gateways & Logs</h1>
-        <p style={{ color: "#888", marginTop: "6px" }}>Vendor status, telemetry layers, and operational log audit tracking.</p>
+    <div className="revenue-container">
+      {/* KPI Monitoring Block Grid */}
+      <div className="monitor-summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "25px" }}>
+        <KPICard title="Twilio Carrier" value={health?.twilio_status || "OFFLINE"} subtitle="Voice Carrier Connectivity" trend="Active Webhooks" trendType="positive" icon="📡" gradient="linear-gradient(135deg, #7367f0, #9c8cff)" />
+        <KPICard title="Deepgram STT" value={health?.deepgram_status || "OFFLINE"} subtitle="Speech Transcription Engine" trend="Nova-2 Model" trendType="positive" icon="🤖" gradient="linear-gradient(135deg, #28c76f, #48ea8a)" />
+        <KPICard title="OTP Success Rate" value={`${health?.otp_success_rate_pct || 0}%`} subtitle="Verification Pipeline Completion" trend="Live Database Value" trendType="positive" icon="🔒" gradient="linear-gradient(135deg, #ff9f43, #ffc285)" />
+        <KPICard title="LLM Latency" value={`${health?.llm_latency_tracker_ms || 0}ms`} subtitle="Mean Core Response Window" trend="Operational Metric" trendType="positive" icon="⚡" gradient="linear-gradient(135deg, #00cfe8, #1cdde7)" />
       </div>
 
-      {/* Vendor Health Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
-        <div style={{ background: "white", padding: "20px", borderRadius: "15px", borderLeft: "5px solid #28C76F" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "13px" }}>Twilio Carrier Hook</p>
-          <h3 style={{ margin: "5px 0 0 0", color: "#2D2D52" }}>{health?.twilio}</h3>
+      {/* Main Structural Layout Card Container */}
+      <div className="table-card">
+        <div className="table-header-group">
+          <h2>System Logs Architecture (Runtime Audit)</h2>
+          <p>Chronological transaction trail captured from background task metrics handlers.</p>
         </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "15px", borderLeft: "5px solid #28C76F" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "13px" }}>Deepgram STT Engine</p>
-          <h3 style={{ margin: "5px 0 0 0", color: "#2D2D52" }}>{health?.deepgram}</h3>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "15px", borderLeft: "5px solid #7367F0" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "13px" }}>OTP Success Rate</p>
-          <h3 style={{ margin: "5px 0 0 0", color: "#2D2D52" }}>{health?.otpSuccessRate}</h3>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "15px", borderLeft: "5px solid #FF9F43" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "13px" }}>LLM Base Latency</p>
-          <h3 style={{ margin: "5px 0 0 0", color: "#2D2D52" }}>{health?.llmLatency}</h3>
-        </div>
-      </div>
 
-      {/* Operational Logs Grid */}
-      <div style={{ background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 8px 25px rgba(0,0,0,.04)" }}>
-        <h3 style={{ marginBottom: "20px", color: "#2D2D52" }}>System Logs Architecture (Runtime Audit)</h3>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#f5f7fc" }}>
-              <th style={{ padding: "15px", textAlign: "left" }}>Log ID</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Target Number</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Primary Intent</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Status</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Gateway Latency</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.map((log) => (
-              <tr key={log.log_id} style={{ borderBottom: "1px solid #edf1f7" }}>
-                <td style={{ padding: "15px", fontWeight: "600", fontFamily: "monospace" }}>{log.log_id}</td>
-                <td style={{ padding: "15px" }}>{log.number}</td>
-                <td style={{ padding: "15px", color: "#555" }}>{log.primary_intent}</td>
-                <td style={{ padding: "15px" }}>
-                  <span style={{
-                    padding: "4px 10px",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    background: log.status === "Failed" ? "#ffeef0" : "#e3fbf2",
-                    color: log.status === "Failed" ? "#ea5455" : "#28c76f"
-                  }}>{log.status}</span>
-                </td>
-                <td style={{ padding: "15px", fontWeight: "500", color: "#7367F0" }}>{log.latency}</td>
+        <div className="table-responsive-wrapper">
+          <table className="revenue-styled-table">
+            <thead>
+              <tr>
+                <th>Session reference ID</th>
+                <th>Caller Target</th>
+                <th>Primary Intent</th>
+                <th>Gateway Latency</th>
+                <th>Channel Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {logs.length > 0 ? (
+                logs.map((log, index) => {
+                  // Normalize fallback keys safely
+                  const statusLabel = (log.status || "SUCCESS").toUpperCase();
+                  let statusClass = "status-success";
+                  if (statusLabel === "FAILED") statusClass = "status-failed";
+                  if (statusLabel === "DEGRADED") statusClass = "status-degraded";
+
+                  return (
+                    <tr key={`${log.session_id || 'log'}-${index}`}>
+                      <td className="font-mono">{log.session_id}</td>
+                      <td className="font-caller-bold">{log.caller}</td>
+                      <td>
+                        <span className="intent-badge">{log.primary_intent}</span>
+                      </td>
+                      <td className="latency-txt-highlight">{log.latency}</td>
+                      <td>
+                        <span className={`status-pill ${statusClass}`}>
+                          {statusLabel}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="5" className="empty-table-state">
+                    No active integration runtime records mapped to database clusters.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

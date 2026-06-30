@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import KPICard from "../../common/KPICard";
 import useInventory from "../../../hooks/useInventory";
+import "./style.css"; // Pulls the matched style guidelines sheet
 
 function Inventory() {
   const {
@@ -11,247 +13,154 @@ function Inventory() {
     refresh,
   } = useInventory();
 
+  // Local state hook for interactive search filters
+  const [searchQuery, setSearchQuery] = useState("");
+
   if (loading) {
     return (
-      <div style={{ padding: "20px", color: "#888" }}>
-        Loading Inventory Data...
+      <div className="revenue-loading">
+        Compiling Global Inventory Asset Matrices...
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: "20px" }}>
-        <h2>Unable to Load Inventory Data</h2>
-        <p>{error.message || "Something went wrong."}</p>
-        <button onClick={refresh}>Retry</button>
+      <div className="revenue-error">
+        <h2>Unable to Sync Inventory Database</h2>
+        <p>{error.message || "Connection line to PostgreSQL timed out."}</p>
+        <button onClick={refresh}>Retry Sync</button>
       </div>
     );
   }
 
+  // Live filter evaluating products by ID, Name, Category, or Status Trigger State
+  const filteredAlerts = inventoryAlerts.filter((item) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      (item.product_name && item.product_name.toLowerCase().includes(query)) ||
+      (item.product_id && item.product_id.toString().toLowerCase().includes(query)) ||
+      (item.category && item.category.toLowerCase().includes(query)) ||
+      (item.trigger_state && item.trigger_state.toLowerCase().includes(query))
+    );
+  });
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <div className="revenue-container">
+      
+      {/* Page Header Structure aligned with Revenue */}
+      <div className="revenue-page-header">
         <div>
-          <h1
-            style={{
-              fontSize: "34px",
-              color: "#2D2D52",
-              margin: 0,
-            }}
-          >
-            Inventory Alerts
-          </h1>
-
-          <p
-            style={{
-              color: "#888",
-              marginTop: "6px",
-            }}
-          >
-            Live inventory information from PostgreSQL.
-          </p>
+          <h1>Inventory & Stock Alerts</h1>
+          <p>Real-time asset tracking and fulfillment alerts fetched directly from PostgreSQL.</p>
         </div>
-
-        <button
-          onClick={refresh}
-          style={{
-            background: "#7367F0",
-            color: "#fff",
-            border: "none",
-            borderRadius: "10px",
-            padding: "10px 18px",
-            cursor: "pointer",
-            fontWeight: "600",
-          }}
-        >
-          Refresh
+        <button className="refresh-btn" onClick={refresh}>
+          Refresh Ledger
         </button>
       </div>
 
+      {/* Conditional Warning Banner styled to fit your premium layouts */}
       {flashBanner && (
-        <div
-          style={{
-            background: "#FFF8E6",
-            border: "1px solid #FFD166",
-            color: "#8A5A00",
-            padding: "14px 18px",
-            borderRadius: "12px",
-            fontWeight: "600",
-          }}
-        >
-          ⚠️ Immediate inventory refill required.
+        <div className="inventory-flash-banner">
+          <span className="banner-icon">⚠️</span> Critical Level Notice: Immediate inventory refills are required for flagged product lines.
         </div>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: "20px",
-        }}
-      >
-        <div
-          style={{
-            background: "#fff",
-            padding: "20px",
-            borderRadius: "18px",
-            boxShadow: "0 8px 25px rgba(0,0,0,.04)",
-          }}
-        >
-          <span style={{ color: "#888" }}>Total Alerts</span>
-          <h2 style={{ color: "#7367F0" }}>{totalAlerts}</h2>
-        </div>
+      {/* 3-Column Summary Card Row using KPICards */}
+      <div className="inventory-summary-grid">
+        <KPICard
+          title="Total Stock Alerts"
+          value={totalAlerts}
+          subtitle="Flagged Catalog Products"
+          trend="System Wide"
+          trendType="negative"
+          icon="📦"
+          gradient="linear-gradient(135deg, #7367f0, #9c8cff)"
+        />
 
-        <div
-          style={{
-            background: "#fff",
-            padding: "20px",
-            borderRadius: "18px",
-            boxShadow: "0 8px 25px rgba(0,0,0,.04)",
-          }}
-        >
-          <span style={{ color: "#888" }}>Out of Stock</span>
-          <h2 style={{ color: "#EA5455" }}>
-            {inventoryAlerts.filter(
-              (item) => item.trigger_state === "OUT_OF_STOCK"
-            ).length}
-          </h2>
-        </div>
+        <KPICard
+          title="Out Of Stock"
+          value={inventoryAlerts.filter((item) => item.trigger_state === "OUT_OF_STOCK").length}
+          subtitle="Empty Shelves Index"
+          trend="Refill Urgently"
+          trendType="negative"
+          icon="🚨"
+          gradient="linear-gradient(135deg, #ea5455, #ff7b7c)"
+        />
 
-        <div
-          style={{
-            background: "#fff",
-            padding: "20px",
-            borderRadius: "18px",
-            boxShadow: "0 8px 25px rgba(0,0,0,.04)",
-          }}
-        >
-          <span style={{ color: "#888" }}>Categories</span>
-          <h2 style={{ color: "#28C76F" }}>
-            {new Set(inventoryAlerts.map((i) => i.category)).size}
-          </h2>
-        </div>
+        <KPICard
+          title="Monitored Categories"
+          value={new Set(inventoryAlerts.map((i) => i.category)).size}
+          subtitle="Distinct Product Segments"
+          trend="PostgreSQL Data"
+          trendType="positive"
+          icon="🏷️"
+          gradient="linear-gradient(135deg, #28c76f, #48ea8a)"
+        />
       </div>
 
-      <div
-        style={{
-          background: "#fff",
-          padding: "25px",
-          borderRadius: "20px",
-          boxShadow: "0 8px 25px rgba(0,0,0,.04)",
-        }}
-      >
-        <h3
-          style={{
-            marginBottom: "20px",
-            color: "#2D2D52",
-          }}
-        >
-          Product Catalog Alerts
-        </h3>
+      {/* Catalog Table Block */}
+      <div className="inventory-card">
+        <div className="inventory-header">
+          <div>
+            <h2>Product Catalog Alerts</h2>
+            <p>Monitored lines registering matching system trigger conditions.</p>
+          </div>
+          
+          {/* Integrated Dynamic Search box mapping criteria overlay input */}
+          <div>
+            <input
+              type="text"
+              placeholder="Search by product, ID, category..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="inventory-search-input"
+            />
+          </div>
+        </div>
 
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-          }}
-        >
-          <thead>
-            <tr style={{ background: "#F5F7FC" }}>
-              <th style={{ padding: "15px", textAlign: "left" }}>
-                Product ID
-              </th>
-
-              <th style={{ padding: "15px", textAlign: "left" }}>
-                Product Name
-              </th>
-
-              <th style={{ padding: "15px", textAlign: "left" }}>
-                Category
-              </th>
-
-              <th style={{ padding: "15px", textAlign: "left" }}>
-                Price
-              </th>
-
-              <th style={{ padding: "15px", textAlign: "left" }}>
-                Status
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {inventoryAlerts.length === 0 ? (
+        {/* Responsive Table Grid */}
+        <div className="table-responsive-wrapper">
+          <table className="revenue-styled-table">
+            <thead>
               <tr>
-                <td
-                  colSpan="5"
-                  style={{
-                    padding: "30px",
-                    textAlign: "center",
-                    color: "#999",
-                  }}
-                >
-                  No inventory alerts found.
-                </td>
+                <th>Product reference ID</th>
+                <th>Product Specification</th>
+                <th>Category Line</th>
+                <th>Unit Price</th>
+                <th>Fulfillment Status</th>
               </tr>
-            ) : (
-              inventoryAlerts.map((item) => (
-                <tr
-                  key={item.product_id}
-                  style={{
-                    borderBottom: "1px solid #EDF1F7",
-                  }}
-                >
-                  <td
-                    style={{
-                      padding: "15px",
-                      fontFamily: "monospace",
-                      fontWeight: "600",
-                    }}
-                  >
-                    {item.product_id}
-                  </td>
-
-                  <td style={{ padding: "15px" }}>
-                    {item.product_name}
-                  </td>
-
-                  <td style={{ padding: "15px" }}>
-                    {item.category}
-                  </td>
-
-                  <td style={{ padding: "15px", fontWeight: "600" }}>
-                    ${Number(item.price).toFixed(2)}
-                  </td>
-
-                  <td style={{ padding: "15px" }}>
-                    <span
-                      style={{
-                        background: "#FFE5E8",
-                        color: "#EA5455",
-                        padding: "6px 12px",
-                        borderRadius: "20px",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      {item.trigger_state}
-                    </span>
+            </thead>
+            <tbody>
+              {filteredAlerts.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="empty-table-state">
+                    No active product lines match your filtering parameters.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                // Added index parameter to safely map a completely unique composite key prop string
+                filteredAlerts.map((item, index) => (
+                  <tr key={`${item.product_id || 'item'}-${index}`} className="table-row-hover">
+                    <td className="font-mono">{item.product_id}</td>
+                    <td className="font-caller-bold">{item.product_name}</td>
+                    <td><span className="intent-badge">{item.category}</span></td>
+                    <td className="inventory-price-highlight">
+                      ₹{Number(item.price || 0).toLocaleString()}
+                    </td>
+                    <td>
+                      <span className={`status-pill ${item.trigger_state ? item.trigger_state.toLowerCase() : ""}`}>
+                        {item.trigger_state ? item.trigger_state.replace(/_/g, " ") : ""}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
     </div>
   );
 }

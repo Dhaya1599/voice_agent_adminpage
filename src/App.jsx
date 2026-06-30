@@ -6,14 +6,14 @@ import "./App.css";
 import Navbar from "./components/common/Navbar";
 import Sidebar from "./components/common/Sidebar";
 
-import Dashboard from "./components/sections/Dashboard";
 import LiveCalls from "./components/sections/LiveCalls";
 import ApiMonitor from "./components/sections/ApiMonitor";
 import Revenue from "./components/sections/Revenue";
 import Inventory from "./components/sections/Inventory";
 
 function App() {
-  const [activePage, setActivePage] = useState("dashboard");
+  // Sets livecalls seamlessly as the base homepage tab
+  const [activePage, setActivePage] = useState("livecalls");
 
   const renderPage = () => {
     switch (activePage) {
@@ -30,26 +30,23 @@ function App() {
         return <Inventory />;
 
       default:
-        return <Dashboard />;
+        // Graceful fallback to LiveCalls to prevent blank screen states
+        return <LiveCalls />;
     }
   };
 
   return (
     <div className="dashboard-root">
-
       <Navbar />
 
       <div className="dashboard-body">
-
         <Sidebar
           activePage={activePage}
           setActivePage={setActivePage}
         />
 
         <main className="dashboard-content">
-
           <AnimatePresence mode="wait">
-
             <motion.div
               key={activePage}
               initial={{
@@ -70,13 +67,9 @@ function App() {
             >
               {renderPage()}
             </motion.div>
-
           </AnimatePresence>
-
         </main>
-
       </div>
-
     </div>
   );
 }

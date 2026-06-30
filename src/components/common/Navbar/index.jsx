@@ -69,7 +69,7 @@ function Navbar() {
 
           <div className="profile-info">
 
-            <h4>Roshini</h4>
+            <h4>Amirtha</h4>
 
             <span>Administrator</span>
 

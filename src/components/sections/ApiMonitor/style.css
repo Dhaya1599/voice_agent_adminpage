@@ -1,4 +1,60 @@
-.vendor-panels-split { display: flex; gap: 16px; }
-.vendor-card { flex: 1; background-color: var(--bg); border: 1px solid var(--bd); border-radius: 8px; padding: 14px; }
-.vendor-card h3 { margin: 0 0 6px 0; font-size: 13px; color: var(--tx); }
-.vendor-card p { margin: 0; font-size: 13px; color: var(--t2); }
+/* Custom 4-column layout adjusting to the narrower cards spacing */
+.monitor-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* Matching the precise box shadow, borders, and paddings of standard application panels */
+.monitor-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 12px 35px rgba(17, 24, 39, 0.08);
+}
+
+.monitor-header {
+  margin-bottom: 25px;
+}
+
+.monitor-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #2c2c54;
+  font-weight: 700;
+}
+
+.monitor-header p {
+  margin: 6px 0 0 0;
+  color: #8d94b2;
+  font-size: 14px;
+}
+
+/* Beautiful custom column styling matching the layout guidelines */
+.latency-txt-highlight {
+  font-weight: 600;
+  color: #7367f0;
+}
+
+/* Row hover transitions mirroring the premium framework design */
+.table-row-hover {
+  transition: background-color 0.2s ease;
+}
+
+.table-row-hover:hover {
+  background-color: #fbfbfe;
+}
+
+/* Responsive breakdowns for multi-device view alignments */
+@media (max-width: 1400px) {
+  .monitor-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .monitor-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

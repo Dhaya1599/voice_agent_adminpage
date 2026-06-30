@@ -1,246 +1,126 @@
-.inventory-container {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
+/* Custom 3-column configuration matching core interface views */
+.inventory-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
 }
 
-/* ===========================
-   Header
-=========================== */
+/* Base application main layout component panel overrides */
+.inventory-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 12px 35px rgba(17, 24, 39, 0.08);
+}
 
 .inventory-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 25px;
 }
 
-.inventory-header h1 {
+.inventory-header h2 {
   margin: 0;
-  font-size: 34px;
+  font-size: 24px;
   color: #2c2c54;
   font-weight: 700;
 }
 
 .inventory-header p {
-  margin-top: 8px;
+  margin: 6px 0 0 0;
   color: #8d94b2;
-  font-size: 15px;
+  font-size: 14px;
 }
 
-.inventory-refresh-btn {
-  border: none;
-  cursor: pointer;
-  padding: 12px 22px;
-  border-radius: 12px;
-  color: white;
-  font-weight: 600;
-  background: linear-gradient(135deg,#7367F0,#9C8CFF);
-  box-shadow: 0 12px 30px rgba(115,103,240,.25);
-  transition: .3s;
-}
-
-.inventory-refresh-btn:hover {
-  transform: translateY(-3px);
-}
-
-/* ===========================
-   Flash Banner
-=========================== */
-
-.warning-banner-strip {
-  background: linear-gradient(135deg,#FFF7DA,#FFFDF2);
-  border: 1px solid #FFD66B;
-  color: #9A6700;
+/* Premium Header Banner Alert Design */
+.inventory-flash-banner {
+  background: #fff9f0;
+  border: 1px solid #ffe6cc;
+  color: #d97706;
   padding: 16px 22px;
   border-radius: 16px;
+  font-size: 15px;
   font-weight: 600;
-  box-shadow: 0 10px 25px rgba(255,193,7,.12);
-}
-
-/* ===========================
-   KPI Cards
-=========================== */
-
-.inventory-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 22px;
-}
-
-.inventory-card {
-  background: white;
-  padding: 24px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.08);
-  transition: .3s;
-}
-
-.inventory-card:hover {
-  transform: translateY(-6px);
-}
-
-.inventory-card span {
-  color: #8d94b2;
-  font-size: 14px;
-}
-
-.inventory-card h2 {
-  margin-top: 12px;
-  font-size: 34px;
-  color: #2c2c54;
-}
-
-/* ===========================
-   Table Card
-=========================== */
-
-.inventory-table-card {
-  background: white;
-  border-radius: 22px;
-  padding: 28px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.08);
-}
-
-/* ===========================
-   Manage Button
-=========================== */
-
-.action-manage-btn {
-  border: none;
-  cursor: pointer;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: white;
-  background: linear-gradient(135deg,#7367F0,#9C8CFF);
-  transition: .25s;
-}
-
-.action-manage-btn:hover {
-  transform: translateY(-2px);
-}
-
-/* ===========================
-   Modal
-=========================== */
-
-.admin-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15,23,42,.45);
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.04);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 999;
+  gap: 10px;
 }
 
-.admin-modal-window {
-  width: 460px;
-  background: white;
-  border-radius: 22px;
-  padding: 28px;
-  box-shadow: 0 25px 60px rgba(0,0,0,.18);
+.banner-icon {
+  font-size: 18px;
 }
 
-.admin-modal-window h3 {
-  margin: 0 0 20px;
-  color: #2c2c54;
-  font-size: 22px;
-}
-
-.modal-info-row {
-  margin-bottom: 12px;
-  color: #6b7280;
+/* Revenue-Matched Search Field Configuration */
+.inventory-search-input {
+  width: 320px;
+  padding: 12px 18px;
   font-size: 14px;
-}
-
-.modal-input-group {
-  display: flex;
-  flex-direction: column;
-  margin-top: 18px;
-  gap: 8px;
-}
-
-.modal-input-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #555;
-}
-
-.modal-text-field {
-  height: 46px;
-  border-radius: 10px;
-  border: 1px solid #dfe4ec;
-  padding: 0 14px;
+  border: 1px solid #edf1f7;
+  border-radius: 12px;
+  background-color: #f8f9fd;
+  color: #2c2c54;
   outline: none;
+  transition: all 0.3s ease;
 }
 
-.modal-text-field:focus {
-  border-color: #7367F0;
+.inventory-search-input:focus {
+  border-color: #7367f0;
+  background-color: #ffffff;
+  box-shadow: 0 8px 20px rgba(115, 103, 240, 0.1);
 }
 
-.modal-actions-tray {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 28px;
-}
-
-.modal-btn {
-  border: none;
-  cursor: pointer;
-  padding: 10px 18px;
-  border-radius: 10px;
+/* Dynamic Price Formatting Highlight */
+.inventory-price-highlight {
   font-weight: 600;
+  color: #2c2c54;
 }
 
-.modal-btn.cancel {
-  background: #eef2f7;
-  color: #555;
+/* Specialized Status Mappings covering different stock thresholds */
+.status-pill.out_of_stock {
+  background-color: #fff2f2;
+  color: #ea5455;
 }
 
-.modal-btn.save {
-  color: white;
-  background: linear-gradient(135deg,#7367F0,#9C8CFF);
+.status-pill.low_stock {
+  background-color: #fffbeb;
+  color: #ff9f43;
 }
 
-/* ===========================
-   Responsive
-=========================== */
-
-@media (max-width:1100px){
-
-.inventory-kpi-grid{
-
-grid-template-columns:repeat(2,1fr);
-
+/* Fallback fallback handling safety markers for unrecognized states */
+.status-pill.reorder_triggered,
+.status-pill.backordered {
+  background-color: #f5f6ff;
+  color: #7367f0;
 }
 
+/* Row hover transitions */
+.table-row-hover {
+  transition: background-color 0.2s ease;
 }
 
-@media (max-width:768px){
-
-.inventory-header{
-
-flex-direction:column;
-
-align-items:flex-start;
-
-gap:18px;
-
+.table-row-hover:hover {
+  background-color: #fbfbfe;
 }
 
-.inventory-kpi-grid{
-
-grid-template-columns:1fr;
-
+/* Media Query Adaptations matching the dashboard breakpoints */
+@media (max-width: 1200px) {
+  .inventory-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.admin-modal-window{
-
-width:95%;
-
-}
-
+@media (max-width: 768px) {
+  .inventory-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .inventory-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .inventory-search-input {
+    width: 100%;
+  }
 }

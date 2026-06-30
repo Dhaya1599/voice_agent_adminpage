@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import "./App.css";
@@ -12,25 +12,41 @@ import Revenue from "./components/sections/Revenue";
 import Inventory from "./components/sections/Inventory";
 
 function App() {
-  // Sets livecalls seamlessly as the base homepage tab
-  const [activePage, setActivePage] = useState("livecalls");
+  // 1. Initialize state from localStorage, default to 'livecalls' if empty
+  const [activePage, setActivePage] = useState(() => {
+    return localStorage.getItem("dashboard-active-tab") || "livecalls";
+  });
+
+  // Tracks whether we're in the brief transition window between pages
+  const [isPageLoading, setIsPageLoading] = useState(false);
+
+  // 2. Persist state changes to localStorage whenever activePage updates
+  useEffect(() => {
+    localStorage.setItem("dashboard-active-tab", activePage);
+  }, [activePage]);
+
+  // Wraps the raw setter so navigation always shows a brief loading state
+  // before the next page mounts, instead of switching instantly.
+  const handlePageChange = (nextPage) => {
+    if (nextPage === activePage) return;
+    setIsPageLoading(true);
+    setTimeout(() => {
+      setActivePage(nextPage);
+      setIsPageLoading(false);
+    }, 400);
+  };
 
   const renderPage = () => {
     switch (activePage) {
       case "livecalls":
         return <LiveCalls />;
-
       case "api":
         return <ApiMonitor />;
-
       case "revenue":
         return <Revenue />;
-
       case "inventory":
         return <Inventory />;
-
       default:
-        // Graceful fallback to LiveCalls to prevent blank screen states
         return <LiveCalls />;
     }
   };
@@ -42,31 +58,33 @@ function App() {
       <div className="dashboard-body">
         <Sidebar
           activePage={activePage}
-          setActivePage={setActivePage}
+          setActivePage={handlePageChange}
         />
 
         <main className="dashboard-content">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={activePage}
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              exit={{
-                opacity: 0,
-                y: -20,
-              }}
-              transition={{
-                duration: 0.35,
-              }}
-            >
-              {renderPage()}
-            </motion.div>
+            {isPageLoading ? (
+              <motion.div
+                key="page-loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="page-loading-state"
+              >
+                Loading please wait...
+              </motion.div>
+            ) : (
+              <motion.div
+                key={activePage}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.35 }}
+              >
+                {renderPage()}
+              </motion.div>
+            )}
           </AnimatePresence>
         </main>
       </div>

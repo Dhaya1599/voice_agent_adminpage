@@ -118,3 +118,13 @@ body {
   padding: 40px !important;
   color: #b9b9c3;
 }
+.page-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: calc(100vh - 80px); /* adjust 80px to match your Navbar height */
+  font-size: 16px;
+  font-weight: 500;
+  color: #8d94b2;
+}

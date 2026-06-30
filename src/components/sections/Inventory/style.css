@@ -1,14 +1,246 @@
-.warning-banner-strip { background-color: #fffbeb; border: 1px solid #fde68a; color: #b45309; padding: 12px 16px; border-radius: 6px; font-size: 13px; }
-.action-manage-btn { padding: 4px 10px; font-size: 12px; background-color: var(--bg); border: 1px solid var(--bd); border-radius: 4px; cursor: pointer; }
-.action-manage-btn:hover { background-color: var(--s2); border-color: var(--bd2); }
-.admin-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-.admin-modal-window { background-color: var(--bg); border-radius: 8px; width: 420px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--bd); }
-.admin-modal-window h3 { margin: 0 0 14px 0; font-size: 16px; color: var(--tx); }
-.modal-info-row { font-size: 13px; margin-bottom: 8px; color: var(--t2); }
-.modal-input-group { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
-.modal-input-group label { font-size: 12px; font-weight: 600; color: var(--t2); }
-.modal-text-field { padding: 8px; border: 1px solid var(--bd); border-radius: 6px; font-size: 13px; }
-.modal-actions-tray { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-.modal-btn { padding: 6px 14px; font-size: 13px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; }
-.modal-btn.cancel { background-color: var(--s2); color: var(--t2); border-color: var(--bd); }
-.modal-btn.save { background-color: var(--tx); color: #fff; }
+.inventory-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* ===========================
+   Header
+=========================== */
+
+.inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inventory-header h1 {
+  margin: 0;
+  font-size: 34px;
+  color: #2c2c54;
+  font-weight: 700;
+}
+
+.inventory-header p {
+  margin-top: 8px;
+  color: #8d94b2;
+  font-size: 15px;
+}
+
+.inventory-refresh-btn {
+  border: none;
+  cursor: pointer;
+  padding: 12px 22px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  background: linear-gradient(135deg,#7367F0,#9C8CFF);
+  box-shadow: 0 12px 30px rgba(115,103,240,.25);
+  transition: .3s;
+}
+
+.inventory-refresh-btn:hover {
+  transform: translateY(-3px);
+}
+
+/* ===========================
+   Flash Banner
+=========================== */
+
+.warning-banner-strip {
+  background: linear-gradient(135deg,#FFF7DA,#FFFDF2);
+  border: 1px solid #FFD66B;
+  color: #9A6700;
+  padding: 16px 22px;
+  border-radius: 16px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(255,193,7,.12);
+}
+
+/* ===========================
+   KPI Cards
+=========================== */
+
+.inventory-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 22px;
+}
+
+.inventory-card {
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  transition: .3s;
+}
+
+.inventory-card:hover {
+  transform: translateY(-6px);
+}
+
+.inventory-card span {
+  color: #8d94b2;
+  font-size: 14px;
+}
+
+.inventory-card h2 {
+  margin-top: 12px;
+  font-size: 34px;
+  color: #2c2c54;
+}
+
+/* ===========================
+   Table Card
+=========================== */
+
+.inventory-table-card {
+  background: white;
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+/* ===========================
+   Manage Button
+=========================== */
+
+.action-manage-btn {
+  border: none;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg,#7367F0,#9C8CFF);
+  transition: .25s;
+}
+
+.action-manage-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ===========================
+   Modal
+=========================== */
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.admin-modal-window {
+  width: 460px;
+  background: white;
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.18);
+}
+
+.admin-modal-window h3 {
+  margin: 0 0 20px;
+  color: #2c2c54;
+  font-size: 22px;
+}
+
+.modal-info-row {
+  margin-bottom: 12px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.modal-input-group {
+  display: flex;
+  flex-direction: column;
+  margin-top: 18px;
+  gap: 8px;
+}
+
+.modal-input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.modal-text-field {
+  height: 46px;
+  border-radius: 10px;
+  border: 1px solid #dfe4ec;
+  padding: 0 14px;
+  outline: none;
+}
+
+.modal-text-field:focus {
+  border-color: #7367F0;
+}
+
+.modal-actions-tray {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.modal-btn {
+  border: none;
+  cursor: pointer;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.modal-btn.cancel {
+  background: #eef2f7;
+  color: #555;
+}
+
+.modal-btn.save {
+  color: white;
+  background: linear-gradient(135deg,#7367F0,#9C8CFF);
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width:1100px){
+
+.inventory-kpi-grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+@media (max-width:768px){
+
+.inventory-header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:18px;
+
+}
+
+.inventory-kpi-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.admin-modal-window{
+
+width:95%;
+
+}
+
+}

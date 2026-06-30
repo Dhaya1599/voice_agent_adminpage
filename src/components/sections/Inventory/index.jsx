@@ -1,74 +1,254 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import useInventory from "../../../hooks/useInventory";
 
 function Inventory() {
-  const [alerts, setAlerts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    flashBanner,
+    inventoryAlerts,
+    totalAlerts,
+    loading,
+    error,
+    refresh,
+  } = useInventory();
 
-  useEffect(() => {
-    fetch("/api/v1/inventory/alerts")
-      .then(res => res.json())
-      .then(data => {
-        setAlerts(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setAlerts([
-          { sku: "PROD-SKU-802", name: "Premium Widget Variant", remaining: 0, status: "Out of Stock", actionTicket: "TCK-4091" },
-          { sku: "PROD-SKU-114", name: "Standard Basic Package", remaining: 4, status: "Critical Threshold Low", actionTicket: "TCK-4092" },
-          { sku: "PROD-SKU-339", name: "Enterprise Allocation Node", remaining: 12, status: "Healthy Status Trend", actionTicket: "None" }
-        ]);
-        setLoading(false);
-      });
-  }, []);
+  if (loading) {
+    return (
+      <div style={{ padding: "20px", color: "#888" }}>
+        Loading Inventory Data...
+      </div>
+    );
+  }
 
-  if (loading) return <div style={{ padding: "20px", color: "#888" }}>Polling Catalog Asset Allocations...</div>;
+  if (error) {
+    return (
+      <div style={{ padding: "20px" }}>
+        <h2>Unable to Load Inventory Data</h2>
+        <p>{error.message || "Something went wrong."}</p>
+        <button onClick={refresh}>Retry</button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-      <div>
-        <h1 style={{ fontSize: "34px", color: "#2D2D52", margin: 0 }}>Inventory Alerts</h1>
-        <p style={{ color: "#888", marginTop: "6px" }}>Threshold checking loops mapped straight out of the catalog database.</p>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: "34px",
+              color: "#2D2D52",
+              margin: 0,
+            }}
+          >
+            Inventory Alerts
+          </h1>
+
+          <p
+            style={{
+              color: "#888",
+              marginTop: "6px",
+            }}
+          >
+            Live inventory information from PostgreSQL.
+          </p>
+        </div>
+
+        <button
+          onClick={refresh}
+          style={{
+            background: "#7367F0",
+            color: "#fff",
+            border: "none",
+            borderRadius: "10px",
+            padding: "10px 18px",
+            cursor: "pointer",
+            fontWeight: "600",
+          }}
+        >
+          Refresh
+        </button>
       </div>
 
-      <div style={{ background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 8px 25px rgba(0,0,0,.04)" }}>
-        <h3 style={{ marginBottom: "20px", color: "#2D2D52" }}>Real-time Quantity Watch & Auto-Ticketing</h3>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      {flashBanner && (
+        <div
+          style={{
+            background: "#FFF8E6",
+            border: "1px solid #FFD166",
+            color: "#8A5A00",
+            padding: "14px 18px",
+            borderRadius: "12px",
+            fontWeight: "600",
+          }}
+        >
+          ⚠️ Immediate inventory refill required.
+        </div>
+      )}
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3,1fr)",
+          gap: "20px",
+        }}
+      >
+        <div
+          style={{
+            background: "#fff",
+            padding: "20px",
+            borderRadius: "18px",
+            boxShadow: "0 8px 25px rgba(0,0,0,.04)",
+          }}
+        >
+          <span style={{ color: "#888" }}>Total Alerts</span>
+          <h2 style={{ color: "#7367F0" }}>{totalAlerts}</h2>
+        </div>
+
+        <div
+          style={{
+            background: "#fff",
+            padding: "20px",
+            borderRadius: "18px",
+            boxShadow: "0 8px 25px rgba(0,0,0,.04)",
+          }}
+        >
+          <span style={{ color: "#888" }}>Out of Stock</span>
+          <h2 style={{ color: "#EA5455" }}>
+            {inventoryAlerts.filter(
+              (item) => item.trigger_state === "OUT_OF_STOCK"
+            ).length}
+          </h2>
+        </div>
+
+        <div
+          style={{
+            background: "#fff",
+            padding: "20px",
+            borderRadius: "18px",
+            boxShadow: "0 8px 25px rgba(0,0,0,.04)",
+          }}
+        >
+          <span style={{ color: "#888" }}>Categories</span>
+          <h2 style={{ color: "#28C76F" }}>
+            {new Set(inventoryAlerts.map((i) => i.category)).size}
+          </h2>
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: "#fff",
+          padding: "25px",
+          borderRadius: "20px",
+          boxShadow: "0 8px 25px rgba(0,0,0,.04)",
+        }}
+      >
+        <h3
+          style={{
+            marginBottom: "20px",
+            color: "#2D2D52",
+          }}
+        >
+          Product Catalog Alerts
+        </h3>
+
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+          }}
+        >
           <thead>
-            <tr style={{ background: "#f5f7fc" }}>
-              <th style={{ padding: "15px", textAlign: "left" }}>Catalog SKU</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Product Item Name</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Stock Counter</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Condition Severity</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Refill Action Ticket</th>
+            <tr style={{ background: "#F5F7FC" }}>
+              <th style={{ padding: "15px", textAlign: "left" }}>
+                Product ID
+              </th>
+
+              <th style={{ padding: "15px", textAlign: "left" }}>
+                Product Name
+              </th>
+
+              <th style={{ padding: "15px", textAlign: "left" }}>
+                Category
+              </th>
+
+              <th style={{ padding: "15px", textAlign: "left" }}>
+                Price
+              </th>
+
+              <th style={{ padding: "15px", textAlign: "left" }}>
+                Status
+              </th>
             </tr>
           </thead>
+
           <tbody>
-            {alerts.map((item, index) => (
-              <tr key={index} style={{ borderBottom: "1px solid #edf1f7" }}>
-                <td style={{ padding: "15px", fontFamily: "monospace", fontWeight: "600" }}>{item.sku}</td>
-                <td style={{ padding: "15px", color: "#555" }}>{item.name}</td>
-                <td style={{ padding: "15px", fontWeight: "600" }}>{item.remaining} units</td>
-                <td style={{ padding: "15px" }}>
-                  <span style={{
-                    padding: "5px 12px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    background: item.remaining === 0 ? "#ffeef0" : item.remaining <= 5 ? "#fff8ec" : "#e3fbf2",
-                    color: item.remaining === 0 ? "#ea5455" : item.remaining <= 5 ? "#ff9f43" : "#28c76f"
-                  }}>{item.status}</span>
-                </td>
-                <td style={{ padding: "15px" }}>
-                  {item.actionTicket !== "None" ? (
-                    <span style={{ color: "#7367F0", fontWeight: "600", background: "#f0eeff", padding: "4px 8px", borderRadius: "6px", fontSize: "13px" }}>
-                      🎟️ {item.actionTicket}
-                    </span>
-                  ) : (
-                    <span style={{ color: "#b9b9c3" }}>None Required</span>
-                  )}
+            {inventoryAlerts.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="5"
+                  style={{
+                    padding: "30px",
+                    textAlign: "center",
+                    color: "#999",
+                  }}
+                >
+                  No inventory alerts found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              inventoryAlerts.map((item) => (
+                <tr
+                  key={item.product_id}
+                  style={{
+                    borderBottom: "1px solid #EDF1F7",
+                  }}
+                >
+                  <td
+                    style={{
+                      padding: "15px",
+                      fontFamily: "monospace",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {item.product_id}
+                  </td>
+
+                  <td style={{ padding: "15px" }}>
+                    {item.product_name}
+                  </td>
+
+                  <td style={{ padding: "15px" }}>
+                    {item.category}
+                  </td>
+
+                  <td style={{ padding: "15px", fontWeight: "600" }}>
+                    ${Number(item.price).toFixed(2)}
+                  </td>
+
+                  <td style={{ padding: "15px" }}>
+                    <span
+                      style={{
+                        background: "#FFE5E8",
+                        color: "#EA5455",
+                        padding: "6px 12px",
+                        borderRadius: "20px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {item.trigger_state}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

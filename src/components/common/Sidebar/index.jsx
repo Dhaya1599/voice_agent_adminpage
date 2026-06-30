@@ -35,26 +35,6 @@ function Sidebar({ activePage, setActivePage }) {
   return (
     <aside className="sidebar">
 
-      <div className="logo">
-
-        <div className="logo-circle">
-          VA
-        </div>
-
-        <div className="logo-text">
-
-          <h2>Voice Admin</h2>
-
-          <p>Management Portal</p>
-
-        </div>
-
-      </div>
-
-      <div className="sidebar-label">
-        NAVIGATION
-      </div>
-
       <nav className="sidebar-menu">
 
         {menus.map((menu) => (

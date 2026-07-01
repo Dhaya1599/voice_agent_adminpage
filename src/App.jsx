@@ -28,12 +28,12 @@ function App() {
   // Wraps the raw setter so navigation always shows a brief loading state
   // before the next page mounts, instead of switching instantly.
   const handlePageChange = (nextPage) => {
-    if (nextPage === activePage) return;
-    setIsPageLoading(true);
+    if (nextPage === activePage) return; //if the user clicks the same page
+    setIsPageLoading(true); //setting the loading to true
     setTimeout(() => {
       setActivePage(nextPage);
       setIsPageLoading(false);
-    }, 400);
+    }, 800);
   };
 
   const renderPage = () => {
@@ -60,7 +60,7 @@ function App() {
           activePage={activePage}
           setActivePage={handlePageChange}
         />
-
+  
         <main className="dashboard-content">
           <AnimatePresence mode="wait">
             {isPageLoading ? (
@@ -72,8 +72,9 @@ function App() {
                 transition={{ duration: 0.4 }}
                 className="page-loading-state"
               >
-                Loading please wait...
+                <div className="spinner"></div>
               </motion.div>
+
             ) : (
               <motion.div
                 key={activePage}

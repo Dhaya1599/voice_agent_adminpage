@@ -1,13 +1,14 @@
 import React from "react";
 
-function Pagination({ currentPage, totalPages = 3, onPageChange }) {
+
+function Pagination({ currentPage, totalPages , onPageChange }) {
   return (
     <div className="pagination-controls" style={{ marginTop: '20px', textAlign: 'center' }}>
       <button 
         disabled={currentPage === 1} 
         onClick={() => onPageChange(currentPage - 1)}
       >
-        Prev
+      &larr; 
       </button>
       
       {[...Array(totalPages)].map((_, i) => (
@@ -25,7 +26,7 @@ function Pagination({ currentPage, totalPages = 3, onPageChange }) {
         disabled={currentPage === totalPages} 
         onClick={() => onPageChange(currentPage + 1)}
       >
-        Next
+        &rarr;
       </button>
     </div>
   );

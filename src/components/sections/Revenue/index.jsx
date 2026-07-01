@@ -39,13 +39,6 @@ function Revenue() {
     fetchFinancials();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="revenue-loading">
-        Compiling Financial Metrics...
-      </div>
-    );
-  }
 
   if (error) {
     return (

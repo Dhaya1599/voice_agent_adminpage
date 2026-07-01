@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+//usememo is used in places where the expensive sql querying is used
+//only allows rerendering when the dependencies change
 import "./style.css";
 
 function getBadge(status) {
@@ -11,7 +13,7 @@ function getBadge(status) {
 
     case "completed":
       return "badge blue";
-
+      
     default:
       return "badge red";
   }
@@ -21,9 +23,10 @@ function DataGrid({
   title = "Accounts & Ledger Audit Entries",
   columns = [],
   data = [],
-  rowsPerPage = 5,
+  rowsPerPage = 10,
 }) {
   const [search, setSearch] = useState("");
+  //keep the search state empty
   const [page, setPage] = useState(1);
 
   const filteredData = useMemo(() => {
@@ -34,11 +37,11 @@ function DataGrid({
         String(value).toLowerCase().includes(search.toLowerCase())
       )
     );
-  }, [data, search]);
+  }, [data, search]);//only run when these values change
 
   const totalPages = Math.max(
-    1,
-    Math.ceil(filteredData.length / rowsPerPage)
+    1, //display minimum 1 page 
+    Math.ceil(filteredData.length / rowsPerPage) //if 2.2 pages make it 3
   );
 
   const paginatedData = filteredData.slice(
@@ -119,28 +122,14 @@ function DataGrid({
         </tbody>
 
       </table>
+      {
+        <Pagination 
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          />
+      }
 
-      <div className="pagination">
-
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-        >
-          Previous
-        </button>
-
-        <span>
-          Page {page} of {totalPages}
-        </span>
-
-        <button
-          disabled={page === totalPages}
-          onClick={() => setPage(page + 1)}
-        >
-          Next
-        </button>
-
-      </div>
 
     </div>
   );

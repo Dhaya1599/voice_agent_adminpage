@@ -35,13 +35,6 @@ function Inventory() {
     fetchInventory();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="revenue-loading">
-        Compiling Global Inventory Asset Matrices...
-      </div>
-    );
-  }
 
   if (error) {
     return (

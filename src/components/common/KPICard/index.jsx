@@ -44,22 +44,6 @@ function KPICard({
 
       </div>
 
-      {trend && (
-        <div className="kpi-footer">
-
-          <span
-            className={`trend ${
-              trendType === "positive"
-                ? "positive"
-                : "negative"
-            }`}
-          >
-            {trendType === "positive" ? "▲" : "▼"} {trend}
-          </span>
-
-        </div>
-      )}
-
     </div>
   );
 }

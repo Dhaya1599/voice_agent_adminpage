@@ -18,9 +18,7 @@ function Revenue() {
     setLoading(true);
     setError(null);
     try {
-      
-
-      const {data} = await RevenueService.getFinancials();
+      const { data } = await RevenueService.getFinancials();
       setMetrics({
         revenue: data.total_revenue ?? 0,
         profit: data.gross_profit_estimated ?? 0,
@@ -39,7 +37,6 @@ function Revenue() {
     fetchFinancials();
   }, []);
 
-
   if (error) {
     return (
       <div className="revenue-error">
@@ -54,7 +51,6 @@ function Revenue() {
 
   return (
     <div className="revenue-container">
-
       <div className="revenue-page-header">
         <div>
           <h1>Commerce & Revenue Ledger</h1>
@@ -62,90 +58,46 @@ function Revenue() {
         </div>
       </div>
 
+      {/* KPI Header Cards */}
       <div className="revenue-summary-grid">
-
-        <KPICard
-          title="Total Revenue"
-          value={`₹${Number(revenue).toLocaleString()}`}
-          subtitle="Total Revenue Generated"
-          trend="+12.8%"
-          trendType="positive"
-          icon="💰"
-          gradient="linear-gradient(135deg,#7367F0,#9C8CFF)"
-        />
-
-        <KPICard
-          title="Gross Profit"
-          value={`₹${Number(profit).toLocaleString()}`}
-          subtitle="Estimated Gross Profit"
-          trend="+8.6%"
-          trendType="positive"
-          icon="📈"
-          gradient="linear-gradient(135deg,#00C853,#43E97B)"
-        />
-
-        <KPICard
-          title="Conversion Rate"
-          value={`${conversionRate}%`}
-          subtitle="Customer Conversion"
-          trend="+3.1%"
-          trendType="positive"
-          icon="🎯"
-          gradient="linear-gradient(135deg,#00B4DB,#0083B0)"
-        />
-
-        <KPICard
-          title="Average Order"
-          value={`₹${Number(averageOrderValue).toLocaleString()}`}
-          subtitle="Average Order Value"
-          trend="+5.4%"
-          trendType="positive"
-          icon="🛒"
-          gradient="linear-gradient(135deg,#F7971E,#FFD200)"
-        />
-
+        <KPICard title="Total Revenue" value={`₹${Number(revenue).toLocaleString()}`} icon="💰"gradient="linear-gradient(135deg, #FF5F6D, #FF5F6D)" />
+        <KPICard title="Gross Profit" value={`₹${Number(profit).toLocaleString()}`} icon="📈"gradient="linear-gradient(135deg, #11998e, #11998e)"/>
+        <KPICard title="Conversion Rate" value={`${conversionRate}%`} icon="🎯"gradient="linear-gradient(135deg, #f7d40f, #f7d40f)" />
+        <KPICard title="Average Order" value={`₹${Number(averageOrderValue).toLocaleString()}`} icon="🛒" />
       </div>
 
+      {/* Main Chart Section - Now Full Width */}
       <div className="revenue-card">
-
         <div className="revenue-header">
           <div>
-            <h2>Revenue Summary</h2>
-            <p>Live data fetched from your FastAPI backend.</p>
+            <h2>Revenue Trend</h2>
+            <p>Live data visualization.</p>
           </div>
         </div>
-
-        <div className="summary-row">
+        <div className="revenue-chart">
           <RevenueChart revenue={revenue} profit={profit} />
-
-          <div className="summary-box">
-            <span>Total Revenue</span>
-            <h3>₹{Number(revenue).toLocaleString()}</h3>
-            <p className="positive">Live Database Value</p>
-          </div>
-
-          <div className="summary-box">
-            <span>Gross Profit</span>
-            <h3>₹{Number(profit).toLocaleString()}</h3>
-            <p className="positive">Live Database Value</p>
-          </div>
-
-          <div className="summary-box">
-            <span>Conversion Rate</span>
-            <h3>{conversionRate}%</h3>
-            <p className="positive">Live Database Value</p>
-          </div>
-
-          <div className="summary-box">
-            <span>Average Order</span>
-            <h3>₹{Number(averageOrderValue).toLocaleString()}</h3>
-            <p className="positive">Live Database Value</p>
-          </div>
-
         </div>
-
       </div>
 
+      {/* Summary Row - Now Below the Chart */}
+      <div className="summary-row">
+        <div className="summary-box">
+          <span>Total Revenue</span>
+          <h3>₹{Number(revenue).toLocaleString()}</h3>
+        </div>
+        <div className="summary-box">
+          <span>Gross Profit</span>
+          <h3>₹{Number(profit).toLocaleString()}</h3>
+        </div>
+        <div className="summary-box">
+          <span>Conversion Rate</span>
+          <h3>{conversionRate}%</h3>
+        </div>
+        <div className="summary-box">
+          <span>Average Order</span>
+          <h3>₹{Number(averageOrderValue).toLocaleString()}</h3>
+        </div>
+      </div>
     </div>
   );
 }

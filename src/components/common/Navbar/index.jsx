@@ -1,7 +1,6 @@
 import "./style.css";
 
 import {
-  FiBell,
   FiSearch,
   FiSettings,
   FiUser,
@@ -24,9 +23,9 @@ function Navbar() {
         </div>
         
         <div className="navbar-title">
-          <h2>Voice Agent Dashboard</h2>
+          <h3>Voice Agent Dashboard</h3>
           <span>
-            — Real-Time Analytics Platform
+            Real-Time Analytics Platform
           </span>
         </div>
       </div>

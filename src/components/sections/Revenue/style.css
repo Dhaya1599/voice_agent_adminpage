@@ -35,6 +35,7 @@
   border-radius: 24px;
   padding: 28px;
   box-shadow: 0 12px 35px rgba(17,24,39,.08);
+  width: 100%;
 }
 
 .revenue-header {
@@ -64,8 +65,8 @@
 .summary-box {
   background: linear-gradient(180deg,#ffffff,#f8f9fd);
   border: 1px solid #edf1f7;
-  border-radius: 18px;
-  padding: 22px;
+  border-radius: 28px;
+  padding: 28px;
   transition: .3s;
 }
 
@@ -75,9 +76,9 @@
 }
 
 .summary-box span {
-  color: #8d94b2;
-  font-size: 13px;
-  font-weight: 600;
+  color: #141414;
+  font-size: 26px;
+  font-weight: 650;
 }
 
 .summary-box h3 {
@@ -126,8 +127,11 @@
   background: linear-gradient(180deg,#fafbff,#ffffff);
   border-radius: 22px;
   border: 1px solid #edf1f7;
-  padding: 25px;
+  padding: 15px;
   min-height: 420px;
+  width: 100%;
+  
+  
 }
 
 /* Responsive */

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import KPICard from "../../common/KPICard";
 import "./style.css";
-import Pagination from "../../common/Pagination";
+import Pagination from "../../common/Pagination/Pagination";
 import { ApiMonitorService } from "../../../services/endpoints/apimonitorService";
 
 function ApiMonitor() {

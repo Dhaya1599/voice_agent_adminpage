@@ -1,9 +1,9 @@
 import React from "react";
-
+import "./style.css";
 
 function Pagination({ currentPage, totalPages , onPageChange }) {
   return (
-    <div className="pagination-controls" style={{ marginTop: '20px', textAlign: 'center' }}>
+    <div className="pagination-controls" style={{ marginTop: '35px', textAlign: 'center' }}>
       <button 
         disabled={currentPage === 1} 
         onClick={() => onPageChange(currentPage - 1)}
@@ -16,7 +16,7 @@ function Pagination({ currentPage, totalPages , onPageChange }) {
           key={i + 1} 
           onClick={() => onPageChange(i + 1)}
           className={currentPage === i + 1 ? "active" : ""}
-          style={{ margin: '0 5px' }}
+          style={{ margin: '0 7px' }}
         >
           {i + 1}
         </button>

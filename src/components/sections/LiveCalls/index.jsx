@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import KPICard from "../../common/KPICard";
-import Pagination from "../../common/Pagination"; // Ensure this is imported
+import Pagination from "../../common/Pagination/Pagination";
 import "./style.css";
 import { LiveCallsService } from "../../../services/endpoints/livecallsService";
 

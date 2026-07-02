@@ -1,0 +1,146 @@
+/* AgentMonitor.css */
+
+.revenue-container {
+    padding: 24px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.revenue-header {
+    margin-bottom: 20px;
+}
+
+.queue-banner {
+    background: linear-gradient(135deg, #2c2c54, #48487a);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.agent-card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-left: 6px solid #ccc;
+    transition: transform 0.2s;
+}
+
+.agent-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Status Colors */
+.agent-card.busy { border-left-color: #ea5455; }
+.agent-card.free { border-left-color: #16c784; }
+.agent-card.offline { border-left-color: #8d94b2; }
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 10px;
+    background: #f0f0f0;
+    color: #333;
+}
+.status-summary {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.summary-card {
+    flex: 1;
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-top: 4px solid #ccc;
+}
+
+.summary-card.busy { border-top-color: #e92f2f; }
+.summary-card.free { border-top-color: #36e9a4; }
+.summary-card.offline { border-top-color: #8d94b2; }
+
+.summary-count {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.agent-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.agent-table th, .agent-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.agent-table th {
+    background: #a4c0eb;
+    font-weight: 600;
+}
+
+.row-busy { background: rgba(223, 55, 55, 0.05); }
+.row-free { background: rgba(22, 199, 132, 0.05); }
+.row-offline { background: rgba(141, 148, 178, 0.05); }
+
+.error-text {
+    color: #ea5455;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+.table-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-btn {
+    border: 2px solid #ccc;
+    background: white;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.filter-btn.busy { border-color: #ea5455; color: #ea5455; }
+.filter-btn.free { border-color: #16c784; color: #16c784; }
+.filter-btn.offline { border-color: #8d94b2; color: #8d94b2; }
+
+.filter-btn.busy.active { background: #ea5455; color: white; }
+.filter-btn.free.active { background: #16c784; color: white; }
+.filter-btn.offline.active { background: #8d94b2; color: white; }

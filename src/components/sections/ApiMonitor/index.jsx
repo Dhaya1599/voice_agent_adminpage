@@ -1,100 +1,120 @@
 import React, { useState, useEffect } from "react";
+import KPICard from "../../common/KPICard";
+import "./style.css";
+import Pagination from "../../common/Pagination/Pagination";
+import { ApiMonitorService } from "../../../services/endpoints/apimonitorService";
 
 function ApiMonitor() {
   const [health, setHealth] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Search and Pagination State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cursors, setCursors] = useState([null]); 
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchMonitorData = async (page, cursor, query) => {
+    setLoading(true);
+    
+    try {
+      const [healthRes, logRes] = await Promise.all([
+      ApiMonitorService.getHealthMetrics(),
+      ApiMonitorService.getLogs(cursor, 10, query),
+      ]);
+      
+
+      setHealth(healthRes.data);
+      setLogs(logRes.data.logs || []);
+      setHasMore(logRes.data.pagination?.has_more ?? false);
+
+      if (page >= cursors.length) {
+        setCursors(prev => [...prev, logRes.data.pagination?.next_cursor]);
+      }
+    } catch (err) {
+      console.error("Fetch failed:", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/v1/monitor/health-metrics").then(res => res.json()),
-      fetch("/api/v1/admin/logs").then(res => res.json())
-    ])
-    .then(([healthData, logData]) => {
-      setHealth(healthData);
-      setLogs(logData);
-      setLoading(false);
-    })
-    .catch(() => {
-      // Mock Data incorporating vendor configurations and modified log_id standard
-      setHealth({
-        twilio: "Operational",
-        deepgram: "Operational",
-        otpSuccessRate: "98.4%",
-        llmLatency: "142ms",
-        gatewayStatus: "Healthy"
-      });
-      setLogs([
-        { log_id: "LOG-4011", number: "+1 (555) 912-3004", primary_intent: "OTP Verification", status: "Success", latency: "110ms" },
-        { log_id: "LOG-4012", number: "+1 (555) 231-5091", primary_intent: "Product Availability Check", status: "Handled", latency: "185ms" },
-        { log_id: "LOG-4013", number: "+1 (555) 441-9923", primary_intent: "Support Routing", status: "Failed", latency: "210ms" }
-      ]);
-      setLoading(false);
-    });
+    fetchMonitorData(1, null, "");
   }, []);
 
-  if (loading) return <div style={{ padding: "20px", color: "#888" }}>Fetching Gateway Diagnostics...</div>;
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setCurrentPage(1);
+    setCursors([null]);
+    fetchMonitorData(1, null, query);
+  };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-      <div>
-        <h1 style={{ fontSize: "34px", color: "#2D2D52", margin: 0 }}>API Gateways & Logs</h1>
-        <p style={{ color: "#888", marginTop: "6px" }}>Vendor status, telemetry layers, and operational log audit tracking.</p>
+    <div className="revenue-container">
+      {/* KPI Monitoring Grid */}
+      <div className="monitor-summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "25px" }}>
+        <KPICard title="Twilio Carrier" value={health?.twilio_status || "OFFLINE"} subtitle="Voice Carrier Connectivity" trend="Active Webhooks" trendType="positive" icon="🌐" gradient="linear-gradient(135deg, #7367f0, #9c8cff)" />
+        <KPICard title="Deepgram STT" value={health?.deepgram_status || "OFFLINE"} subtitle="Speech Transcription Engine" trend="Nova-2 Model" trendType="positive" icon="🎙️" gradient="linear-gradient(135deg, #28c76f, #48ea8a)" />
+        <KPICard title="OTP Success Rate" value={`${health?.otp_success_rate_pct || 0}%`} subtitle="Verification Pipeline Completion" trend="Live Database Value" trendType="positive" icon="🔐" gradient="linear-gradient(135deg, #ff9f43, #ffc285)" />
+        <KPICard title="LLM Latency" value={`${health?.llm_latency_tracker_ms || 0}ms`} subtitle="Mean Core Response Window" trend="Operational Metric" trendType="positive" icon="⚡" gradient="linear-gradient(135deg, #00cfe8, #1cdde7)" />
       </div>
 
-      {/* Vendor Health Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
-        <div style={{ background: "white", padding: "20px", borderRadius: "15px", borderLeft: "5px solid #28C76F" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "13px" }}>Twilio Carrier Hook</p>
-          <h3 style={{ margin: "5px 0 0 0", color: "#2D2D52" }}>{health?.twilio}</h3>
+      <div className="table-card">
+        <div className="table-header-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2>System Logs Architecture (Runtime Audit)</h2>
+          <input
+            type="text"
+            placeholder="Search by caller, session or intent..."
+            value={searchQuery}
+            onChange={handleSearch}
+            style={{ width: "320px", padding: "10px 16px", fontSize: "14px", border: "1px solid #edf1f7", borderRadius: "10px", background: "#f8f9fd", outline: "none" }}
+          />
         </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "15px", borderLeft: "5px solid #28C76F" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "13px" }}>Deepgram STT Engine</p>
-          <h3 style={{ margin: "5px 0 0 0", color: "#2D2D52" }}>{health?.deepgram}</h3>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "15px", borderLeft: "5px solid #7367F0" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "13px" }}>OTP Success Rate</p>
-          <h3 style={{ margin: "5px 0 0 0", color: "#2D2D52" }}>{health?.otpSuccessRate}</h3>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "15px", borderLeft: "5px solid #FF9F43" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "13px" }}>LLM Base Latency</p>
-          <h3 style={{ margin: "5px 0 0 0", color: "#2D2D52" }}>{health?.llmLatency}</h3>
-        </div>
-      </div>
 
-      {/* Operational Logs Grid */}
-      <div style={{ background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 8px 25px rgba(0,0,0,.04)" }}>
-        <h3 style={{ marginBottom: "20px", color: "#2D2D52" }}>System Logs Architecture (Runtime Audit)</h3>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#f5f7fc" }}>
-              <th style={{ padding: "15px", textAlign: "left" }}>Log ID</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Target Number</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Primary Intent</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Status</th>
-              <th style={{ padding: "15px", textAlign: "left" }}>Gateway Latency</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.map((log) => (
-              <tr key={log.log_id} style={{ borderBottom: "1px solid #edf1f7" }}>
-                <td style={{ padding: "15px", fontWeight: "600", fontFamily: "monospace" }}>{log.log_id}</td>
-                <td style={{ padding: "15px" }}>{log.number}</td>
-                <td style={{ padding: "15px", color: "#555" }}>{log.primary_intent}</td>
-                <td style={{ padding: "15px" }}>
-                  <span style={{
-                    padding: "4px 10px",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    background: log.status === "Failed" ? "#ffeef0" : "#e3fbf2",
-                    color: log.status === "Failed" ? "#ea5455" : "#28c76f"
-                  }}>{log.status}</span>
-                </td>
-                <td style={{ padding: "15px", fontWeight: "500", color: "#7367F0" }}>{log.latency}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="table-responsive-wrapper">
+          {loading ? (
+            <div style={{ padding: "40px", textAlign: "center" }}>Updating logs...</div>
+          ) : (
+            <table className="revenue-styled-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th>Session ID</th>
+                  <th>Caller</th>
+                  <th>Primary Intent</th>
+                  <th>Latency</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.length > 0 ? (
+                  logs.map((log, index) => (
+                    <tr key={`${log.session_id}-${index}`}>
+                      <td className="font-mono">{log.session_id}</td>
+                      <td>{log.caller}</td>
+                      <td><span className="intent-badge">{log.primary_intent}</span></td>
+                      <td>{log.latency}</td>
+                      <td><span className={`status-pill ${log.status?.toLowerCase()}`}>{log.status}</span></td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr><td colSpan="5" style={{ padding: "40px", textAlign: "center", color: "#8d94b2" }}>No records found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <Pagination 
+          currentPage={currentPage} 
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            fetchMonitorData(page, cursors[page - 1], searchQuery);
+          }} 
+        />
       </div>
     </div>
   );

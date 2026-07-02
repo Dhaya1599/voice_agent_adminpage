@@ -2,9 +2,9 @@
 
 background:#fff;
 
-border-radius:22px;
+border-radius:42px;
 
-padding:25px;
+padding:35px;
 
 box-shadow:0 10px 30px rgba(0,0,0,.08);
 
@@ -28,7 +28,7 @@ color:#2c2c54;
 
 .chart-title p{
 
-margin-top:6px;
+margin-top:15px;
 
 color:#8d94b2;
 

@@ -1,96 +1,141 @@
 import React, { useState, useEffect } from "react";
+import KPICard from "../../common/KPICard";
+import Pagination from "../../common/Pagination/Pagination";
+import "./style.css";
+import { LiveCallsService } from "../../../services/endpoints/livecallsService";
+
 
 function LiveCalls() {
-  const [streamData, setStreamData] = useState({
-    activeCalls: 0,
-    concurrentCalls: 0,
-    avgDuration: "00:00",
-    calls: []
+  const [metrics, setMetrics] = useState({
+    active_concurrent_count: 0,
+    average_call_duration_seconds: 0,
   });
+
+  // State for Server-Side Pagination and Search
+  const [logs, setLogs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cursors, setCursors] = useState([null]); // Tracks cursor for each page
+  const [hasMore, setHasMore] = useState(true);
+
+  // Updated fetch to support cursor and search query
+  const fetchDatabaseLogs = async (page, cursor, query) => {
+    setLoading(true);
+    
+    try {
+      const { data } = await LiveCallsService.getLogs(cursor, 10, query);
+      setLogs(data.logs || []);
+      setHasMore(data.pagination?.has_more ?? false);
+
+
+      // Store the next_cursor if we are moving to a new page
+      if (page >= cursors.length) {
+        setCursors(prev => [...prev, data.pagination?.next_cursor]);
+      }
+    } catch (err) {
+      console.error("Database fetch failed:", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch("/api/v1/dashboard/live-stream")
-      .then((res) => res.json())
-      .then((data) => {
-        setStreamData(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        // Fallback Mock Data matching the endpoint schema definition
-        setStreamData({
-          activeCalls: 42,
-          concurrentCalls: 58,
-          avgDuration: "03:45",
-          calls: [
-            { id: "CALL-9912", agent: "Sarah AI", customer: "+1 (555) 019-2834", duration: "04:12", status: "In Progress" },
-            { id: "CALL-9913", agent: "Support Bot 2", customer: "+1 (555) 014-4921", duration: "02:15", status: "Analyzing" },
-            { id: "CALL-9914", agent: "Outbound Dial #4", customer: "+1 (555) 017-8832", duration: "00:54", status: "Listening" }
-          ]
-        });
-        setLoading(false);
-      });
+    fetchDatabaseLogs(1, null, "");
+
+    const eventSource = new EventSource(LiveCallsService.getLiveStreamUrl());
+    eventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (!payload.error) setMetrics(payload);
+      } catch (err) { console.error("Error reading live telemetry chunk:", err); }
+    };
+    return () => eventSource.close();
   }, []);
 
-  if (loading) return <div style={{ padding: "20px", color: "#888" }}>Loading Stream Telemetry...</div>;
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setCurrentPage(1);
+    setCursors([null]);
+    fetchDatabaseLogs(1, null, query);
+  };
+
+  
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-      <div>
-        <h1 style={{ fontSize: "34px", color: "#2D2D52", margin: 0 }}>Live Streams</h1>
-        <p style={{ color: "#888", marginTop: "6px" }}>Real-time voice agent metrics from the runtime pipeline.</p>
-      </div>
-
-      {/* Metric Counters */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
-        <div style={{ background: "white", padding: "25px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "14px" }}>Active Call Counter</p>
-          <h2 style={{ fontSize: "36px", margin: "10px 0 0 0", color: "#7367F0" }}>{streamData.activeCalls}</h2>
-        </div>
-        <div style={{ background: "white", padding: "25px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "14px" }}>Concurrent Call Peak</p>
-          <h2 style={{ fontSize: "36px", margin: "10px 0 0 0", color: "#00CFE8" }}>{streamData.concurrentCalls}</h2>
-        </div>
-        <div style={{ background: "white", padding: "25px", borderRadius: "18px", boxShadow: "0 4px 20px rgba(0,0,0,0.02)" }}>
-          <p style={{ color: "#888", margin: 0, fontSize: "14px" }}>Average Call Duration</p>
-          <h2 style={{ fontSize: "36px", margin: "10px 0 0 0", color: "#28C76F" }}>{streamData.avgDuration}</h2>
+    <div className="revenue-container">
+      <div className="revenue-page-header">
+        <div>
+          <h1>Voice Operations Control Tower</h1>
+          <p>Real-time telemetry streams and operational session audits matching the backend ledger.</p>
         </div>
       </div>
 
-      {/* Table Area */}
-      <div style={{ background: "white", padding: "25px", borderRadius: "20px", boxShadow: "0 8px 25px rgba(0,0,0,.04)" }}>
-        <h3 style={{ marginBottom: "20px", color: "#2D2D52" }}>Active Session Pipeline</h3>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#f5f7fc" }}>
-              <th style={{ padding: "15px", textAlign: "left", color: "#555" }}>Call ID</th>
-              <th style={{ padding: "15px", textAlign: "left", color: "#555" }}>Agent Context</th>
-              <th style={{ padding: "15px", textAlign: "left", color: "#555" }}>Customer Target</th>
-              <th style={{ padding: "15px", textAlign: "left", color: "#555" }}>Duration</th>
-              <th style={{ padding: "15px", textAlign: "left", color: "#555" }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {streamData.calls.map((call) => (
-              <tr key={call.id} style={{ borderBottom: "1px solid #edf1f7" }}>
-                <td style={{ padding: "15px", fontWeight: "600", color: "#2D2D52" }}>{call.id}</td>
-                <td style={{ padding: "15px", color: "#555" }}>{call.agent}</td>
-                <td style={{ padding: "15px", color: "#555" }}>{call.customer}</td>
-                <td style={{ padding: "15px", color: "#7367F0", fontWeight: "500" }}>{call.duration}</td>
-                <td style={{ padding: "15px" }}>
-                  <span style={{
-                    padding: "5px 12px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    background: call.status === "In Progress" ? "#dff7e8" : "#dde8ff",
-                    color: call.status === "In Progress" ? "#00a854" : "#4b5cff"
-                  }}>{call.status}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="revenue-summary-grid">
+        <KPICard title="Concurrent Streams" value={metrics.active_concurrent_count} subtitle="Real-time Stream Pipes" trend="Live Connection" trendType="positive" icon="🌐" gradient="linear-gradient(135deg, #7367f0, #9c8cff)" />
+        <KPICard title="Average Duration" value={`${metrics.average_call_duration_seconds}s`} subtitle="Mean Session Window" trend="Telemetry" trendType="positive" icon="⏱️" gradient="linear-gradient(135deg, #28c76f, #48ea8a)" />
+        <KPICard title="Active Calls" value={metrics.active_concurrent_count} subtitle="Active Pipeline Counter" trend="Node Primary" trendType="positive" icon="📞" gradient="linear-gradient(135deg, #00cfe8, #1cdde7)" />
+      </div>
+
+      <div className="livecalls-card" style={{ marginTop: "10px" }}>
+        <div className="livecalls-header">
+          <div>
+            <h3 style={{ margin: 0 }}>Operational Caller Log Index</h3>
+            <p style={{ margin: "4px 0 0 0", color: "#8d94b2", fontSize: "14px" }}>Queried records matching backend operational histories.</p>
+          </div>
+          <input
+            type="text"
+            placeholder="Search by caller, session or intent..."
+            value={searchQuery}
+            onChange={handleSearch}
+            style={{ width: "320px", padding: "10px 16px", fontSize: "14px", border: "1px solid #edf1f7", borderRadius: "10px", background: "#f8f9fd", outline: "none" }}
+          />
+        </div>
+
+        <div style={{ overflowX: "auto", width: "100%" }}>
+          {loading ? (
+            <div style={{ padding: "40px", textAlign: "center" }}>Updating logs...</div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "15px" }}>
+              <thead>
+                <tr style={{ borderBottom: "2px solid #edf1f7" }}>
+                  <th style={{ padding: "16px", color: "#8d94b2", fontWeight: "600", fontSize: "13px", textTransform: "uppercase" }}>Session ID</th>
+                  <th style={{ padding: "16px", color: "#8d94b2", fontWeight: "600", fontSize: "13px", textTransform: "uppercase" }}>Caller Target</th>
+                  <th style={{ padding: "16px", color: "#8d94b2", fontWeight: "600", fontSize: "13px", textTransform: "uppercase" }}>Primary Intent</th>
+                  <th style={{ padding: "16px", color: "#8d94b2", fontWeight: "600", fontSize: "13px", textTransform: "uppercase" }}>Latency</th>
+                  <th style={{ padding: "16px", color: "#8d94b2", fontWeight: "600", fontSize: "13px", textTransform: "uppercase" }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.length > 0 ? (
+                  logs.map((log) => (
+                    <tr key={log.id} style={{ borderBottom: "1px solid #edf1f7" }}>
+                      <td style={{ padding: "16px", fontFamily: "monospace", fontWeight: "700", color: "#2c2c54" }}>{log.session_id}</td>
+                      <td style={{ padding: "16px", color: "#2c2c54", fontWeight: "600" }}>{log.caller}</td>
+                      <td style={{ padding: "16px" }}><span style={{ background: "#f0f2fa", padding: "4px 8px", borderRadius: "6px", fontSize: "12px", color: "#5e6484" }}>{log.primary_intent}</span></td>
+                      <td style={{ padding: "16px", color: "#8d94b2" }}>{log.latency}</td>
+                      <td style={{ padding: "16px" }}><span style={{ padding: "5px 12px", borderRadius: "8px", fontSize: "12px", fontWeight: "600", background: log.status?.toLowerCase() === "success" ? "#e8fbf3" : "#fff2f2", color: log.status?.toLowerCase() === "success" ? "#16c784" : "#ea5455" }}>{log.status}</span></td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr><td colSpan="5" style={{ padding: "40px", textAlign: "center", color: "#8d94b2" }}>No records found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+        
+        {/* Pagination Integration */}
+        <Pagination 
+          currentPage={currentPage} 
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            fetchDatabaseLogs(page, cursors[page - 1], searchQuery);
+          }} 
+        />
       </div>
     </div>
   );

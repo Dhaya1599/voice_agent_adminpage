@@ -1,0 +1,4 @@
+.pagination-controls button {
+  font-size: 12px; /* Adjust this value to make them larger */
+  padding: 8px 8px; /* You may need to adjust padding to keep them looking good */
+}

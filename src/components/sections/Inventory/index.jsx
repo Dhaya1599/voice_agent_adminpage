@@ -5,184 +5,206 @@ import "./style.css";
 import { InventoryService } from "../../../services/endpoints/inventoryService";
 
 const ITEMS_PER_PAGE = 10;
+const LOW_STOCK_LABEL = 5;
 
 function Inventory() {
-  const [inventoryAlerts, setInventoryAlerts] = useState([]);
-  const [flashBanner, setFlashBanner] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [data, setData] = useState({
+        inventory_alerts: [],
+        flash_banner_active: false,
+        low_stock_count: 0,
+        out_of_stock_count: 0,
+    });
+    const [categories, setCategories] = useState([]);
+    const [categoryFilter, setCategoryFilter] = useState("all");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [topPerformers, setTopPerformers] = useState([]);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+    const fetchInventory = async () => {
+        try {
+            const response = await InventoryService.getInventoryAlerts();
+            setData(response.data);
+            setError(null);
+        } catch (err) {
+            console.error("Failed to fetch inventory:", err);
+            setError("Could not load inventory data.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const fetchInventory = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      
-      const {data} = await InventoryService.getInventoryAlerts();
-      setInventoryAlerts(data.inventory_alerts || []);
-      setFlashBanner(data.flash_banner_active ?? false);
-    } catch (err) {
-      console.error("Inventory fetch failed:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchCategories = async () => {
+        try {
+            const response = await InventoryService.getCategoryAlerts();
+            setCategories(response.data.categories);
+        } catch (err) {
+            console.error("Failed to fetch categories:", err);
+        }
+    };
 
-  useEffect(() => {
-    fetchInventory();
-  }, []);
+    const fetchTopPerformers = async () => {
+        try {
+            const response = await InventoryService.getTopPerformers();
+            setTopPerformers(response.data.top_performers);
+        } catch (err) {
+            console.error("Failed to fetch top performers:", err);
+        }
+    };
 
+    useEffect(() => {
+        fetchInventory();
+        fetchCategories();
+        fetchTopPerformers();
+        const interval = setInterval(fetchInventory, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
-  if (error) {
-    return (
-      <div className="revenue-error">
-        <h2>Unable to Sync Inventory Database</h2>
-        <p>{error.message || "Connection line to PostgreSQL timed out."}</p>
-        <button onClick={fetchInventory}>Retry Sync</button>
-      </div>
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [categoryFilter, searchTerm]);
+
+    const filteredItems = data.inventory_alerts
+        .filter((item) => categoryFilter === "all" || item.category === categoryFilter)
+        .filter((item) => item.product_name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
+    const paginatedItems = filteredItems.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
     );
-  }
 
-  // Live filter evaluating products by ID, Name, Category, or Status Trigger State
-  const filteredAlerts = inventoryAlerts.filter((item) => {
-    const query = searchQuery.toLowerCase();
+    // Top 3 for the ranking bars, scaled relative to rank #1
+    const topThree = topPerformers.slice(0, 3);
+    const maxOrders = topThree.length > 0 ? topThree[0].total_orders : 0;
+
     return (
-      (item.product_name && item.product_name.toLowerCase().includes(query)) ||
-      (item.product_id && item.product_id.toString().toLowerCase().includes(query)) ||
-      (item.category && item.category.toLowerCase().includes(query)) ||
-      (item.trigger_state && item.trigger_state.toLowerCase().includes(query))
-    );
-  });
+        <div className="revenue-container">
+            <div className="inventory-header">
+                <div>
+                    <h2>Inventory</h2>
+                    <p>Live product stock and performance overview</p>
+                </div>
+                <input
+                    type="text"
+                    className="inventory-search-input"
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
 
-  const totalPages = Math.max(1, Math.ceil(filteredAlerts.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedAlerts = filteredAlerts.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE
-  );
+            {error && <p className="error-text">{error}</p>}
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset to first page on every new search
-  };
+            {data.flash_banner_active && (
+                <div className="inventory-flash-banner">
+                    <span className="banner-icon">⚠️</span>
+                    Some items are out of stock — check the table below.
+                </div>
+            )}
 
-  return (
-    <div className="revenue-container">
+            <div className="inventory-summary-grid">
+                <KPICard
+                    title="Low Stock"
+                    value={data.low_stock_count}
+                    subtitle={`≤ ${LOW_STOCK_LABEL} units remaining`}
+                    icon="📉"
+                    gradient="linear-gradient(135deg,#ff9f43,#ffc078)"
+                />
+                <KPICard
+                    title="Out of Stock"
+                    value={data.out_of_stock_count}
+                    subtitle="Needs immediate restock"
+                    icon="🚫"
+                    gradient="linear-gradient(135deg,#ea5455,#ff8b8b)"
+                />
 
-      <div className="revenue-page-header">
-        <div>
-          <h1>Inventory & Stock Alerts</h1>
-          <p>Real-time asset tracking and fulfillment alerts fetched directly from PostgreSQL.</p>
-        </div>
-      </div>
+                <div className="top-performer-card">
+                    <div className="top-performer-header">
+                        <span className="top-performer-icon">🏆</span>
+                        <span className="top-performer-title">Top Performers</span>
+                    </div>
 
-      {flashBanner && (
-        <div className="inventory-flash-banner">
-          <span className="banner-icon">⚠️</span> Critical Level Notice: Immediate inventory refills are required for flagged product lines.
-        </div>
-      )}
+                    {topThree.length === 0 ? (
+                        <p className="top-performer-empty">No order data yet</p>
+                    ) : (
+                        <div className="top-performer-list">
+                            {topThree.map((p, index) => {
+                                const widthPct = maxOrders > 0
+                                    ? Math.max(8, Math.round((p.total_orders / maxOrders) * 100))
+                                    : 0;
+                                return (
+                                    <div className="rank-row" key={p.product_id}>
+                                        <div className="rank-row-top">
+                                            <span className="rank-name">
+                                                <span className={`rank-badge rank-${index + 1}`}>#{index + 1}</span>
+                                                {p.product_name}
+                                            </span>
+                                            <span className="rank-count">{p.total_orders}</span>
+                                        </div>
+                                        <div className="rank-bar-track">
+                                            <div
+                                                className={`rank-bar-fill rank-${index + 1}`}
+                                                style={{ width: `${widthPct}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            </div>
 
-      <div className="inventory-summary-grid">
-        <KPICard
-          title="Total Stock Alerts"
-          value={inventoryAlerts.length}
-          subtitle="Flagged Catalog Products"
-          trend="System Wide"
-          trendType="negative"
-          icon="📦"
-          gradient="linear-gradient(135deg, #7367f0, #9c8cff)"
-        />
+            <div className="table-header-row">
+                <h3>Products</h3>
+                <select
+                    className="category-dropdown"
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                >
+                    <option value="all">All Categories</option>
+                    {categories.map((cat, index) => (
+                        <option key={index} value={cat}>{cat}</option>
+                    ))}
+                </select>
+            </div>
 
-        <KPICard
-          title="Out Of Stock"
-          value={inventoryAlerts.filter((item) => item.trigger_state === "OUT_OF_STOCK").length}
-          subtitle="Empty Shelves Index"
-          trend="Refill Urgently"
-          trendType="negative"
-          icon="🚨"
-          gradient="linear-gradient(135deg, #ea5455, #ff7b7c)"
-        />
+            <table className="agent-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {paginatedItems.map((item) => (
+                        <tr key={item.product_id} className="table-row-hover">
+                            <td>{item.product_name}</td>
+                            <td>{item.category}</td>
+                            <td className="inventory-price-highlight">${item.price.toFixed(2)}</td>
+                            <td>{item.quantity}</td>
+                            <td>
+                                <span className={`status-pill ${item.trigger_state.toLowerCase()}`}>
+                                    {item.trigger_state.replace(/_/g, " ")}
+                                </span>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
 
-        <KPICard
-          title="Monitored Categories"
-          value={new Set(inventoryAlerts.map((i) => i.category)).size}
-          subtitle="Distinct Product Segments"
-          trend="PostgreSQL Data"
-          trendType="positive"
-          icon="🏷️"
-          gradient="linear-gradient(135deg, #28c76f, #48ea8a)"
-        />
-      </div>
-
-      <div className="inventory-card">
-        <div className="inventory-header">
-          <div>
-            <h2>Product Catalog Alerts</h2>
-            <p>Monitored lines registering matching system trigger conditions.</p>
-          </div>
-
-          <div>
-            <input
-              type="text"
-              placeholder="Search by product, ID, category..."
-              value={searchQuery}
-              onChange={handleSearch}
-              className="inventory-search-input"
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
             />
-          </div>
         </div>
-
-        <div className="table-responsive-wrapper">
-          <table className="revenue-styled-table">
-            <thead>
-              <tr>
-                <th>Product reference ID</th>
-                <th>Product Specification</th>
-                <th>Category Line</th>
-                <th>Unit Price</th>
-                <th>Fulfillment Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedAlerts.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="empty-table-state">
-                    No active product lines match your filtering parameters.
-                  </td>
-                </tr>
-              ) : (
-                paginatedAlerts.map((item, index) => (
-                  <tr key={`${item.product_id || 'item'}-${index}`} className="table-row-hover">
-                    <td className="font-mono">{item.product_id}</td>
-                    <td className="font-caller-bold">{item.product_name}</td>
-                    <td><span className="intent-badge">{item.category}</span></td>
-                    <td className="inventory-price-highlight">
-                      ₹{Number(item.price || 0).toLocaleString()}
-                    </td>
-                    <td>
-                      <span className={`status-pill ${item.trigger_state ? item.trigger_state.toLowerCase() : ""}`}>
-                        {item.trigger_state ? item.trigger_state.replace(/_/g, " ") : ""}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <Pagination
-          currentPage={safePage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
-      </div>
-
-    </div>
-  );
+    );
 }
 
 export default Inventory;

@@ -2,63 +2,63 @@
 .inventory-summary-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: stretch;
 }
 
-/* Base application main layout component panel overrides */
 .inventory-card {
   background: #ffffff;
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 12px 35px rgba(17, 24, 39, 0.08);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(175, 100, 65, 0.08);
 }
 
 .inventory-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 16px;
 }
 
 .inventory-header h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 20px;
   color: #2c2c54;
   font-weight: 700;
 }
 
 .inventory-header p {
-  margin: 6px 0 0 0;
+  margin: 4px 0 0 0;
   color: #8d94b2;
-  font-size: 14px;
+  font-size: 13px;
 }
 
-/* Premium Header Banner Alert Design */
 .inventory-flash-banner {
   background: #fff9f0;
   border: 1px solid #ffe6cc;
   color: #d97706;
-  padding: 16px 22px;
-  border-radius: 16px;
-  font-size: 15px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.04);
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.04);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin-bottom: 18px;
 }
 
 .banner-icon {
-  font-size: 18px;
+  font-size: 16px;
 }
 
-/* Revenue-Matched Search Field Configuration */
 .inventory-search-input {
-  width: 320px;
-  padding: 12px 18px;
-  font-size: 14px;
+  width: 280px;
+  padding: 9px 14px;
+  font-size: 13px;
   border: 1px solid #edf1f7;
-  border-radius: 12px;
+  border-radius: 10px;
   background-color: #f8f9fd;
   color: #2c2c54;
   outline: none;
@@ -68,16 +68,23 @@
 .inventory-search-input:focus {
   border-color: #7367f0;
   background-color: #ffffff;
-  box-shadow: 0 8px 20px rgba(115, 103, 240, 0.1);
+  box-shadow: 0 6px 16px rgba(115, 103, 240, 0.1);
 }
 
-/* Dynamic Price Formatting Highlight */
 .inventory-price-highlight {
   font-weight: 600;
   color: #2c2c54;
 }
 
-/* Specialized Status Mappings covering different stock thresholds */
+.status-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
 .status-pill.out_of_stock {
   background-color: #fff2f2;
   color: #ea5455;
@@ -88,14 +95,11 @@
   color: #ff9f43;
 }
 
-/* Fallback fallback handling safety markers for unrecognized states */
-.status-pill.reorder_triggered,
-.status-pill.backordered {
-  background-color: #f5f6ff;
-  color: #7367f0;
+.status-pill.in_stock {
+  background-color: #f0fdf6;
+  color: #16c784;
 }
 
-/* Row hover transitions */
 .table-row-hover {
   transition: background-color 0.2s ease;
 }
@@ -104,7 +108,118 @@
   background-color: #fbfbfe;
 }
 
-/* Media Query Adaptations matching the dashboard breakpoints */
+.category-dropdown {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  font-weight: 600;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* ---------- Top Performer Card ---------- */
+
+.top-performer-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 24px rgba(175, 100, 65, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.top-performer-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.top-performer-icon {
+  font-size: 18px;
+}
+
+.top-performer-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2c2c54;
+}
+
+.top-performer-empty {
+  font-size: 13px;
+  color: #8d94b2;
+  margin: 0;
+}
+
+.top-performer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rank-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.rank-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #2c2c54;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.rank-count {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #7367f0;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: white;
+  padding: 0 4px;
+}
+
+.rank-badge.rank-1 { background: #f5b301; }
+.rank-badge.rank-2 { background: #9aa5b1; }
+.rank-badge.rank-3 { background: #c1793f; }
+
+.rank-bar-track {
+  width: 100%;
+  height: 8px;
+  background: #f0f1f7;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.rank-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+.rank-bar-fill.rank-1 { background: linear-gradient(90deg, #f5b301, #ffd166); }
+.rank-bar-fill.rank-2 { background: linear-gradient(90deg, #9aa5b1, #c3cbd4); }
+.rank-bar-fill.rank-3 { background: linear-gradient(90deg, #c1793f, #e3a877); }
+
 @media (max-width: 1200px) {
   .inventory-summary-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -118,7 +233,7 @@
   .inventory-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
   }
   .inventory-search-input {
     width: 100%;

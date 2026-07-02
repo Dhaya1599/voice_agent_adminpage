@@ -1,4 +1,5 @@
 import "./style.css";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import {
   FiPhone,
@@ -9,34 +10,17 @@ import {
 } from "react-icons/fi";
 
 const menus = [
-  {
-    id: "livecalls",
-    title: "Live Calls",
-    icon: <FiPhone />,
-  },
-  {
-    id: "api",
-    title: "API Monitor",
-    icon: <FiServer />,
-  },
-  {
-    id: "revenue",
-    title: "Revenue",
-    icon: <FiDollarSign />,
-  },
-  {
-    id: "inventory",
-    title: "Inventory",
-    icon: <FiDatabase />,
-  },
-  {
-    id: "AgentMonitor",
-    title: "AgentMonitor",
-    icon: <FiPhone />,
-  },
+  { path: "/livecalls", title: "Live Calls", icon: <FiPhone /> },
+  { path: "/api", title: "API Monitor", icon: <FiServer /> },
+  { path: "/revenue", title: "Revenue", icon: <FiDollarSign /> },
+  { path: "/inventory", title: "Inventory", icon: <FiDatabase /> },
+  { path: "/agents", title: "Agent Monitor", icon: <FiPhone /> },
 ];
 
-function Sidebar({ activePage, setActivePage }) {
+
+function Sidebar() {
+  const loaction = useLocation();
+  const navigate = useNavigate();
   return (
     <aside className="sidebar">
 
@@ -45,13 +29,11 @@ function Sidebar({ activePage, setActivePage }) {
         {menus.map((menu) => (
 
           <button
-            key={menu.id}
+            key={menu.path}
             className={
-              activePage === menu.id
-                ? "menu active"
-                : "menu"
-            }
-            onClick={() => setActivePage(menu.id)}
+              location.pathname === menu.path ? "menu-active" : "menu" }
+            
+            onClick={() => navigate(menu.path)}
           >
 
             <div className="menu-left">

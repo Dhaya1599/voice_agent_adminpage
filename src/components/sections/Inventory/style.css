@@ -23,7 +23,7 @@
 
 .inventory-header h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 33px;
   color: #2c2c54;
   font-weight: 700;
 }
@@ -59,14 +59,14 @@
   font-size: 13px;
   border: 1px solid #edf1f7;
   border-radius: 10px;
-  background-color: #f8f9fd;
-  color: #2c2c54;
+  background-color: #ced2df;
+  color: #171742;
   outline: none;
   transition: all 0.3s ease;
 }
 
 .inventory-search-input:focus {
-  border-color: #7367f0;
+  border-color: #0c092c;
   background-color: #ffffff;
   box-shadow: 0 6px 16px rgba(115, 103, 240, 0.1);
 }

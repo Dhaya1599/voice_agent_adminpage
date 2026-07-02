@@ -63,9 +63,7 @@ function LiveCalls() {
     fetchDatabaseLogs(1, null, query);
   };
 
-  if (loading && logs.length === 0) {
-    return <div className="revenue-loading">Compiling Live Telemetry Pipeline Metrics...</div>;
-  }
+  
 
   return (
     <div className="revenue-container">

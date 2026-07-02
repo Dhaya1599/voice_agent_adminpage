@@ -10,6 +10,7 @@ import LiveCalls from "./components/sections/LiveCalls";
 import ApiMonitor from "./components/sections/ApiMonitor";
 import Revenue from "./components/sections/Revenue";
 import Inventory from "./components/sections/Inventory";
+import AgentMonitor from "./components/sections/AgentMonitor";
 
 function App() {
   // 1. Initialize state from localStorage, default to 'livecalls' if empty
@@ -46,6 +47,8 @@ function App() {
         return <Revenue />;
       case "inventory":
         return <Inventory />;
+      case "AgentMonitor":
+        return <AgentMonitor />;
       default:
         return <LiveCalls />;
     }

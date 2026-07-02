@@ -60,10 +60,10 @@ function Revenue() {
 
       {/* KPI Header Cards */}
       <div className="revenue-summary-grid">
-        <KPICard title="Total Revenue" value={`₹${Number(revenue).toLocaleString()}`} icon="💰"gradient="linear-gradient(135deg, #FF5F6D, #FF5F6D)" />
-        <KPICard title="Gross Profit" value={`₹${Number(profit).toLocaleString()}`} icon="📈"gradient="linear-gradient(135deg, #11998e, #11998e)"/>
+        <KPICard title="Total Revenue" value={`₹${Number(revenue).toLocaleString()}`} icon="💰"gradient="linear-gradient(135deg, #ff9f43, #ffc285)" />
+        <KPICard title="Gross Profit" value={`₹${Number(profit).toLocaleString()}`} icon="📈"gradient="linear-gradient(135deg, #7367f0, #9c8cff"/>
         <KPICard title="Conversion Rate" value={`${conversionRate}%`} icon="🎯"gradient="linear-gradient(135deg, #f7d40f, #f7d40f)" />
-        <KPICard title="Average Order" value={`₹${Number(averageOrderValue).toLocaleString()}`} icon="🛒" />
+        <KPICard title="Average Order" value={`₹${Number(averageOrderValue).toLocaleString()}`} icon="🛒"gradient="linear-gradient(135deg, #00cfe8, #1cdde7)" />
       </div>
 
       {/* Main Chart Section - Now Full Width */}

@@ -29,6 +29,11 @@ const menus = [
     title: "Inventory",
     icon: <FiDatabase />,
   },
+  {
+    id: "AgentMonitor",
+    title: "AgentMonitor",
+    icon: <FiPhone />,
+  },
 ];
 
 function Sidebar({ activePage, setActivePage }) {

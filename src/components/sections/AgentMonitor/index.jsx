@@ -59,7 +59,7 @@ function AgentMonitor() {
     return (
         <div className="revenue-container">
             <div className="revenue-header">
-                <h1>Agent Live Monitor</h1>
+                <h2>Agent Live Monitor</h2>
             </div>
 
             <div className="queue-banner">

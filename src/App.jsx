@@ -37,10 +37,10 @@ function App() {
               <motion.div
                 key="page-loading"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: 3.5 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-                className="page-loading-state"
+                transition={{ duration: 0.6 }}
+                className="spinner-overlay"
               >
                 <div className="spinner"></div>
               </motion.div>

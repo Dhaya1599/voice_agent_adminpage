@@ -69,7 +69,7 @@ function LiveCalls() {
     <div className="revenue-container">
       <div className="revenue-page-header">
         <div>
-          <h1>Voice Operations Control Tower</h1>
+          <h2>Voice Operations Control Tower</h2>
           <p>Real-time telemetry streams and operational session audits matching the backend ledger.</p>
         </div>
       </div>

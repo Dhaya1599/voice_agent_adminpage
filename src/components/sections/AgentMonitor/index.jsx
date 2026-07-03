@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Pagination from "../../common/Pagination/Pagination";
 import { AgentService } from "../../../services/endpoints/AgentService.js";
+import CallsPerHourChart from "../../common/CallsPerHourChart";
 import "./style.css";
 
 const ITEMS_PER_PAGE = 10;
 
 function AgentMonitor() {
     const [data, setData] = useState({ agents: [], queue_count: 0 });
+    const [callsData, setCallsData] = useState([]);
     const [loading, setloading] = useState(true);
     const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState("all");
@@ -25,9 +27,22 @@ function AgentMonitor() {
         }
     };
 
+    const fetchCallsPerHour = async () => {
+        try {
+            const response = await AgentService.getCallsPerHour();
+            setCallsData(response.data.calls_per_hour || []);
+        } catch (err) {
+            console.error("Failed to fetch calls per hour:", err);
+        }
+    };
+
     useEffect(() => {
         fetchStatus();
-        const interval = setInterval(fetchStatus, 5000);
+        fetchCallsPerHour();
+        const interval = setInterval(() => {
+            fetchStatus();
+            fetchCallsPerHour();
+        }, 5000);
         return () => clearInterval(interval);
     }, []);
 
@@ -82,6 +97,8 @@ function AgentMonitor() {
                     <span className="summary-label">Offline</span>
                 </div>
             </div>
+
+            <CallsPerHourChart data={callsData} />
 
             <div className="table-header-row">
                 <h3>Agents</h3>

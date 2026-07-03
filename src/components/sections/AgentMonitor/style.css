@@ -11,7 +11,7 @@
 }
 
 .queue-banner {
-    background: linear-gradient(135deg, #2c2c54, #48487a);
+    background: linear-gradient(135deg, #ab8cd4, #48487a);
     color: white;
     padding: 20px;
     border-radius: 16px;
@@ -51,7 +51,7 @@
     font-weight: 600;
     margin-top: 8px;
     background: #f0f0f0;
-    color: #333;
+    color: #df6d6d;
 }
 
 .status-summary {

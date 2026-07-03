@@ -44,9 +44,9 @@ function Inventory() {
         }
     };
 
-    const fetchTopPerformers = async () => {
+    const fetchTopPerformers = async (category) => {
         try {
-            const response = await InventoryService.getTopPerformers();
+            const response = await InventoryService.getTopPerformers(category);
             setTopPerformers(response.data.top_performers);
         } catch (err) {
             console.error("Failed to fetch top performers:", err);
@@ -56,21 +56,35 @@ function Inventory() {
     useEffect(() => {
         fetchInventory();
         fetchCategories();
-        fetchTopPerformers();
+        fetchTopPerformers(categoryFilter);
         const interval = setInterval(fetchInventory, 5000);
         return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
         setCurrentPage(1);
+        fetchTopPerformers(categoryFilter);
     }, [categoryFilter, searchTerm]);
 
     const filteredItems = data.inventory_alerts
         .filter((item) => categoryFilter === "all" || item.category === categoryFilter)
         .filter((item) => item.product_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
-    const paginatedItems = filteredItems.slice(
+    const getStatusPriority = (status) => {
+        switch (status) {
+            case "OUT_OF_STOCK": return 1;
+            case "LOW_STOCK": return 2;
+            case "IN_STOCK": return 3;
+            default: return 4;
+        }
+    };
+
+    const sortedItems = [...filteredItems].sort((a, b) => {
+        return getStatusPriority(a.trigger_state) - getStatusPriority(b.trigger_state);
+    });
+
+    const totalPages = Math.max(1, Math.ceil(sortedItems.length / ITEMS_PER_PAGE));
+    const paginatedItems = sortedItems.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
@@ -123,7 +137,9 @@ function Inventory() {
                 <div className="top-performer-card">
                     <div className="top-performer-header">
                         <span className="top-performer-icon">🏆</span>
-                        <span className="top-performer-title">Top Performers</span>
+                        <span className="top-performer-title">
+                            Top Performers {categoryFilter !== "all" ? `(${categoryFilter})` : "(All Categories)"}
+                        </span>
                     </div>
 
                     {topThree.length === 0 ? (

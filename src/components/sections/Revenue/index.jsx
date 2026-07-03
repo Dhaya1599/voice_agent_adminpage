@@ -53,7 +53,7 @@ function Revenue() {
     <div className="revenue-container">
       <div className="revenue-page-header">
         <div>
-          <h1>Commerce & Revenue Ledger</h1>
+          <h2>Commerce & Revenue Ledger</h2>
           <p>Financial breakdown generated directly from your backend database.</p>
         </div>
       </div>
@@ -80,24 +80,8 @@ function Revenue() {
       </div>
 
       {/* Summary Row - Now Below the Chart */}
-      <div className="summary-row">
-        <div className="summary-box">
-          <span>Total Revenue</span>
-          <h3>₹{Number(revenue).toLocaleString()}</h3>
-        </div>
-        <div className="summary-box">
-          <span>Gross Profit</span>
-          <h3>₹{Number(profit).toLocaleString()}</h3>
-        </div>
-        <div className="summary-box">
-          <span>Conversion Rate</span>
-          <h3>{conversionRate}%</h3>
-        </div>
-        <div className="summary-box">
-          <span>Average Order</span>
-          <h3>₹{Number(averageOrderValue).toLocaleString()}</h3>
-        </div>
-      </div>
+       
+      
     </div>
   );
 }

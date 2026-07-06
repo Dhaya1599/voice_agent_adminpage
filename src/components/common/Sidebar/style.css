@@ -193,27 +193,70 @@
 
   background: linear-gradient(180deg, #fafbff, #f4f6fc);
   border: 1px solid #edf1f7;
+  transition: background 0.4s ease, border-color 0.4s ease;
 }
 
+/* Warning state when backend is disconnected */
+.sidebar-footer--warn {
+  background: linear-gradient(180deg, #fff5f5, #fef0f0);
+  border-color: #fecaca;
+}
+
+.sidebar-footer--warn strong {
+  color: #dc2626;
+}
+
+.sidebar-footer--warn p {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* Status dot base */
 .system-status {
   width: 10px;
   height: 10px;
   flex-shrink: 0;
   border-radius: 50%;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Connected — green */
+.system-status--connected {
   background: #22c55e;
-  box-shadow: 0 0 0 5px rgba(34, 197, 94, .15);
+  box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.15);
+}
+
+/* Disconnected — red with pulse */
+.system-status--disconnected {
+  background: #ef4444;
+  box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.2);
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+/* Checking — amber */
+.system-status--checking {
+  background: #f59e0b;
+  box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.15);
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.15); transform: scale(1); }
+  50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0.05); transform: scale(1.15); }
 }
 
 .sidebar-footer strong {
   display: block;
   color: #2c2c54;
   font-size: 13px;
+  transition: color 0.3s ease;
 }
 
 .sidebar-footer p {
   margin-top: 2px;
   font-size: 11px;
   color: #8d94b2;
+  transition: color 0.3s ease;
 }
 
 /* ==========================

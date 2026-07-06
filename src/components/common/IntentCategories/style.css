@@ -1,0 +1,138 @@
+/* =============================================
+   INTENT CATEGORIES DONUT CHART CARD
+   ============================================= */
+
+.intent-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 25px 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  margin-top: 10px;
+}
+
+.intent-card-header {
+  margin-bottom: 20px;
+}
+
+.intent-card-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c2c54;
+  margin: 0;
+}
+
+/* Main 3-column layout: bars | chart | bars */
+.intent-body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 30px;
+  align-items: center;
+}
+
+/* Each progress bar column */
+.intent-bars-col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.intent-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.intent-bar-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #5e6484;
+}
+
+.intent-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.intent-name {
+  flex: 1;
+  font-weight: 500;
+  color: #2c2c54;
+}
+
+.intent-pct {
+  font-weight: 600;
+  color: #8d94b2;
+  font-size: 13px;
+  min-width: 36px;
+  text-align: right;
+}
+
+.intent-bar-track {
+  height: 8px;
+  background: #eceef7;
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.intent-bar-fill {
+  height: 100%;
+  border-radius: 30px;
+  transition: width 0.6s ease;
+}
+
+/* Center donut chart area */
+.intent-chart-center {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intent-chart-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.intent-chart-total {
+  font-size: 13px;
+  color: #8d94b2;
+  font-weight: 500;
+}
+
+.intent-chart-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c2c54;
+  line-height: 1.1;
+}
+
+.intent-loading {
+  padding: 40px;
+  text-align: center;
+  color: #8d94b2;
+  font-size: 15px;
+}
+
+/* Responsive: stack on smaller screens */
+@media (max-width: 768px) {
+  .intent-body {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .intent-chart-center {
+    margin: 0 auto;
+  }
+}

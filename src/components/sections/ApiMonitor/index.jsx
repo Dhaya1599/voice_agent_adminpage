@@ -55,7 +55,7 @@ function ApiMonitor() {
 
   return (
     <div className="revenue-container">
-      {/* KPI Monitoring Grid */}
+      <h2>Api Monitoring</h2>
       <div className="monitor-summary-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "25px" }}>
         <KPICard title="Twilio Carrier" value={health?.twilio_status || "OFFLINE"} subtitle="Voice Carrier Connectivity" trend="Active Webhooks" trendType="positive" icon="🌐" gradient="linear-gradient(135deg, #7367f0, #9c8cff)" />
         <KPICard title="Deepgram STT" value={health?.deepgram_status || "OFFLINE"} subtitle="Speech Transcription Engine" trend="Nova-2 Model" trendType="positive" icon="🎙️" gradient="linear-gradient(135deg, #28c76f, #48ea8a)" />

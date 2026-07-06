@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 
 import "./App.css";
@@ -13,80 +14,53 @@ import Inventory from "./components/sections/Inventory";
 import AgentMonitor from "./components/sections/AgentMonitor";
 
 function App() {
-  // 1. Initialize state from localStorage, default to 'livecalls' if empty
-  const [activePage, setActivePage] = useState(() => {
-    return localStorage.getItem("dashboard-active-tab") || "livecalls";
-  });
-
-  // Tracks whether we're in the brief transition window between pages
+  const location = useLocation();
   const [isPageLoading, setIsPageLoading] = useState(false);
 
-  // 2. Persist state changes to localStorage whenever activePage updates
+  // Briefly show the loading state whenever the URL path changes
   useEffect(() => {
-    localStorage.setItem("dashboard-active-tab", activePage);
-  }, [activePage]);
-
-  // Wraps the raw setter so navigation always shows a brief loading state
-  // before the next page mounts, instead of switching instantly.
-  const handlePageChange = (nextPage) => {
-    if (nextPage === activePage) return; //if the user clicks the same page
-    setIsPageLoading(true); //setting the loading to true
-    setTimeout(() => {
-      setActivePage(nextPage);
-      setIsPageLoading(false);
-    }, 800);
-  };
-
-  const renderPage = () => {
-    switch (activePage) {
-      case "livecalls":
-        return <LiveCalls />;
-      case "api":
-        return <ApiMonitor />;
-      case "revenue":
-        return <Revenue />;
-      case "inventory":
-        return <Inventory />;
-      case "AgentMonitor":
-        return <AgentMonitor />;
-      default:
-        return <LiveCalls />;
-    }
-  };
+    setIsPageLoading(true);
+    const timer = setTimeout(() => setIsPageLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   return (
     <div className="dashboard-root">
       <Navbar />
 
       <div className="dashboard-body">
-        <Sidebar
-          activePage={activePage}
-          setActivePage={handlePageChange}
-        />
-  
+        <Sidebar />
+
         <main className="dashboard-content">
           <AnimatePresence mode="wait">
             {isPageLoading ? (
               <motion.div
                 key="page-loading"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: 3.5 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-                className="page-loading-state"
+                transition={{ duration: 0.6 }}
+                className="spinner-overlay"
               >
                 <div className="spinner"></div>
               </motion.div>
-
             ) : (
               <motion.div
-                key={activePage}
+                key={location.pathname}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.35 }}
               >
-                {renderPage()}
+                <Routes>
+                  <Route path="/" element={<Navigate to="/livecalls" replace />} />
+                  <Route path="/livecalls" element={<LiveCalls />} />
+                  <Route path="/api" element={<ApiMonitor />} />
+                  <Route path="/revenue" element={<Revenue />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/agents" element={<AgentMonitor />} />
+                  <Route path="*" element={<Navigate to="/livecalls" replace />} />
+                </Routes>
               </motion.div>
             )}
           </AnimatePresence>

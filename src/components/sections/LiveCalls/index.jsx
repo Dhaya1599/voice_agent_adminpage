@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import KPICard from "../../common/KPICard";
 import Pagination from "../../common/Pagination/Pagination";
+import IntentCategories from "../../common/IntentCategories";
 import "./style.css";
 import { LiveCallsService } from "../../../services/endpoints/livecallsService";
 
@@ -69,7 +70,7 @@ function LiveCalls() {
     <div className="revenue-container">
       <div className="revenue-page-header">
         <div>
-          <h1>Voice Operations Control Tower</h1>
+          <h2>Voice Operations Control Tower</h2>
           <p>Real-time telemetry streams and operational session audits matching the backend ledger.</p>
         </div>
       </div>
@@ -79,6 +80,9 @@ function LiveCalls() {
         <KPICard title="Average Duration" value={`${metrics.average_call_duration_seconds}s`} subtitle="Mean Session Window" trend="Telemetry" trendType="positive" icon="⏱️" gradient="linear-gradient(135deg, #28c76f, #48ea8a)" />
         <KPICard title="Active Calls" value={metrics.active_concurrent_count} subtitle="Active Pipeline Counter" trend="Node Primary" trendType="positive" icon="📞" gradient="linear-gradient(135deg, #00cfe8, #1cdde7)" />
       </div>
+
+      {/* Intent Categories Donut Chart */}
+      <IntentCategories />
 
       <div className="livecalls-card" style={{ marginTop: "10px" }}>
         <div className="livecalls-header">

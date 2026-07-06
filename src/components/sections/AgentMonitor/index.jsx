@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
+import Pagination from "../../common/Pagination/Pagination";
 import { AgentService } from "../../../services/endpoints/AgentService.js";
-import "./style.css"
+import CallsPerHourChart from "../../common/CallsPerHourChart";
+import "./style.css";
+
+const ITEMS_PER_PAGE = 10;
 
 function AgentMonitor() {
     const [data, setData] = useState({ agents: [], queue_count: 0 });
+    const [callsData, setCallsData] = useState([]);
     const [loading, setloading] = useState(true);
     const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
 
     const fetchStatus = async () => {
         try {
@@ -21,31 +27,54 @@ function AgentMonitor() {
         }
     };
 
+    const fetchCallsPerHour = async () => {
+        try {
+            const response = await AgentService.getCallsPerHour();
+            setCallsData(response.data.calls_per_hour || []);
+        } catch (err) {
+            console.error("Failed to fetch calls per hour:", err);
+        }
+    };
+
     useEffect(() => {
         fetchStatus();
-        const interval = setInterval(fetchStatus, 5000);
+        fetchCallsPerHour();
+        const interval = setInterval(() => {
+            fetchStatus();
+            fetchCallsPerHour();
+        }, 5000);
         return () => clearInterval(interval);
     }, []);
 
-    // Group + count agents by status
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [statusFilter]);
+
     const statusCounts = { busy: 0, free: 0, offline: 0 };
     data.agents.forEach((agent) => {
         const s = agent.status?.toLowerCase();
         if (statusCounts[s] !== undefined) statusCounts[s]++;
     });
 
-    const toggleFilter = (status) => {
-        setStatusFilter((prev) => (prev === status ? "all": status));
+    const setFilter = (status) => {
+        setStatusFilter(status);
     };
+
     const filteredAgents =
         statusFilter === "all"
             ? data.agents
             : data.agents.filter((a) => a.status?.toLowerCase() === statusFilter);
-    
+
+    const totalPages = Math.max(1, Math.ceil(filteredAgents.length / ITEMS_PER_PAGE));
+    const paginatedAgents = filteredAgents.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
     return (
         <div className="revenue-container">
             <div className="revenue-header">
-                <h1>Agent Live Monitor</h1>
+                <h2>Agent Live Monitor</h2>
             </div>
 
             <div className="queue-banner">
@@ -68,29 +97,39 @@ function AgentMonitor() {
                     <span className="summary-label">Offline</span>
                 </div>
             </div>
+
+            <CallsPerHourChart data={callsData} />
+
             <div className="table-header-row">
                 <h3>Agents</h3>
-                <div className = "filter-buttons">
+                <div className="filter-buttons">
                     <button
-                        className={`filter-btn busy ${statusFilter === "busy" ? "active": ""}`}
-                        onClick ={() => toggleFilter("busy")}
+                        className={`filter-btn all ${statusFilter === "all" ? "active" : ""}`}
+                        onClick={() => setFilter("all")}
+                    >
+                        ALL
+                    </button>
+                    <button
+                        className={`filter-btn busy ${statusFilter === "busy" ? "active" : ""}`}
+                        onClick={() => setFilter("busy")}
                     >
                         BUSY
                     </button>
                     <button
-                        className={`filter-btn free ${statusFilter === "free" ? "active": ""}`}
-                        onClick ={() => toggleFilter("free")}
+                        className={`filter-btn free ${statusFilter === "free" ? "active" : ""}`}
+                        onClick={() => setFilter("free")}
                     >
                         FREE
                     </button>
                     <button
-                        className={`filter-btn offline ${statusFilter === "offline" ? "active": ""}`}
-                        onClick ={() => toggleFilter("offline")}
+                        className={`filter-btn offline ${statusFilter === "offline" ? "active" : ""}`}
+                        onClick={() => setFilter("offline")}
                     >
                         OFFLINE
                     </button>
                 </div>
-            </div> 
+            </div>
+
             <table className="agent-table">
                 <thead>
                     <tr>
@@ -100,7 +139,7 @@ function AgentMonitor() {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredAgents.map((agent, index) => (
+                    {paginatedAgents.map((agent, index) => (
                         <tr key={index} className={`row-${agent.status?.toLowerCase()}`}>
                             <td>{agent.name}</td>
                             <td>{agent.phone_no}</td>
@@ -113,6 +152,12 @@ function AgentMonitor() {
                     ))}
                 </tbody>
             </table>
+
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
 }

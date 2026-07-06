@@ -27,7 +27,7 @@ body {
 /* Matches <main className="dashboard-content"> */
 .dashboard-content {
   flex: 1;
-  padding: 25px;
+  padding: 10px;
   overflow-y: auto; /* Gives you a clean scrolling area on the right side if content is long */
   background: #f5f7fb;
   min-width: 0;     /* Ensures grid layouts inside don't break flex container sizing bounds */
@@ -126,12 +126,26 @@ body {
   min-height: calc(100vh - 80px); /* adjust 80px to match your Navbar height */
 }
 
+/* The background overlay that blocks the screen */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0.5;
+  width: 80vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3; /* Light grey background */
-  border-top: 4px solid #3498db; /* Blue rotating part */
-  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #052f4b;
+  border-radius: 70%;
   animation: spin 1s linear infinite;
 }
 
